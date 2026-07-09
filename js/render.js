@@ -80,6 +80,164 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     SEASON ARCHIVE
+     ====================================================================== */
+  PAGES.seasons = function () {
+    var yrs = EFFL.years();
+    var latest = EFFL.latestSeason().year;
+    $("#seasons-sub").textContent = yrs[0] + " to " + latest +
+      ": final standings, full draft boards, weekly results, and the playoff bracket for every campaign.";
+
+    var current = parseInt(location.hash.replace("#", ""), 10);
+    if (yrs.indexOf(current) < 0) current = latest;
+
+    var scroller = $("#year-scroller");
+    scroller.innerHTML = yrs.map(function (y) {
+      var s = EFFL.seasonByYear(y);
+      return '<button class="year-btn" role="tab" data-year="' + y + '" aria-selected="false">' + y +
+        '<span class="tt">' + esc(ownerName(s.champion)) + "</span></button>";
+    }).join("");
+
+    EFFL.$all(".year-btn", scroller).forEach(function (b) {
+      b.addEventListener("click", function () {
+        history.replaceState(null, "", "#" + b.dataset.year);
+        renderYear(parseInt(b.dataset.year, 10));
+      });
+    });
+
+    function renderYear(y) {
+      EFFL.$all(".year-btn", scroller).forEach(function (b) {
+        var on = parseInt(b.dataset.year, 10) === y;
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      var s = EFFL.seasonByYear(y);
+      var champ = s.teams.filter(function (t) { return t.owner === s.champion; })[0];
+      var ru = s.teams.filter(function (t) { return t.owner === s.runner_up; })[0];
+      var tallyTeam = s.teams.filter(function (t) { return t.owner === s.tally; })[0];
+      var standings = s.teams.slice().sort(function (a, b) { return a.finish - b.finish; });
+
+      var html = "";
+
+      /* banners */
+      html += '<div class="grid cols-3">' +
+        bannerCell("Champion", s.champion, champ, "var(--gold)") +
+        bannerCell("Runner Up", s.runner_up, ru, "var(--muted)") +
+        bannerCell("The Tally", s.tally, tallyTeam, "var(--maroon)") +
+        "</div>";
+
+      /* standings */
+      html += sectionHead("Final Standings", y + " regular season, finish order of record") +
+        '<div class="tbl-scroll"><table class="tbl" id="standings-tbl"><thead><tr>' +
+        '<th class="num-cell">Finish</th><th>Franchise</th><th>Owner</th><th class="num-cell">Seed</th>' +
+        '<th class="num-cell">W</th><th class="num-cell">L</th><th class="num-cell">T</th>' +
+        '<th class="num-cell">PF</th><th class="num-cell">PA</th></tr></thead><tbody>' +
+        standings.map(function (t) {
+          return "<tr" + (t.finish === 1 ? ' class="hl"' : "") + ">" +
+            '<td class="num-cell" data-val="' + t.finish + '">' + t.finish + "</td>" +
+            '<td class="owner-cell">' + esc(t.team) + "</td>" +
+            '<td class="dim">' + esc(ownerName(t.owner)) + "</td>" +
+            '<td class="num-cell" data-val="' + t.seed + '">' + t.seed + "</td>" +
+            '<td class="num-cell">' + t.w + '</td><td class="num-cell">' + t.l + '</td><td class="num-cell">' + t.t + "</td>" +
+            '<td class="num-cell" data-val="' + t.pf + '">' + fmtPts(t.pf) + "</td>" +
+            '<td class="num-cell" data-val="' + t.pa + '">' + fmtPts(t.pa) + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+
+      /* bracket */
+      var bk = EFFL.bracket(y);
+      if (bk) {
+        html += sectionHead("The Playoff Bracket", "Reconstructed from the box scores of weeks " + bk.semiWk + " and " + bk.finalWk) +
+          '<div class="bracket">' +
+            '<div><div class="bracket-round-title">Semifinals · Week ' + bk.semiWk + "</div>" +
+              bk.semis.map(function (m) { return bkGame(m, y, false); }).join("") + "</div>" +
+            "<div>" +
+              '<div class="bracket-round-title">Championship · Week ' + bk.finalWk + "</div>" +
+              (bk.final ? bkGame(bk.final, y, true) : "") +
+              (bk.third ? '<div class="bracket-round-title mt-2">Third Place Game</div>' + bkGame(bk.third, y, false) : "") +
+            "</div>" +
+          "</div>";
+        if (bk.consolation.length) {
+          html += '<details class="round-details mt-2"><summary>Consolation Ladder (' + bk.consolation.length + " games)</summary>" +
+            '<div class="pick-grid">' + bk.consolation.map(function (m) {
+              return '<div class="pick"><span class="pk">WK ' + m.week + '</span><span class="pl">' +
+                esc(ownerName(m.a)) + " " + fmtPts(m.a_pts) + ", " + esc(ownerName(m.b)) + " " + fmtPts(m.b_pts) + "</span></div>";
+            }).join("") + "</div></details>";
+        }
+      }
+
+      /* keepers */
+      if (s.keepers && s.keepers.length) {
+        html += sectionHead("Keepers", "Declared under the Keeper Codex") +
+          '<div class="pick-grid" style="border:1px solid var(--rule)">' +
+          s.keepers.map(function (k) {
+            return '<div class="pick"><span class="pk">' + esc(String(k.rd || "")) + '</span><span class="pl">' + esc(k.player || "") +
+              '</span><span class="ow">' + esc(ownerName(k.owner || "")) + "</span></div>";
+          }).join("") + "</div>";
+      }
+
+      /* draft board */
+      if (s.draft && s.draft.length) {
+        var rounds = {};
+        s.draft.forEach(function (p) { (rounds[p.rd] = rounds[p.rd] || []).push(p); });
+        var rdKeys = Object.keys(rounds).map(Number).sort(function (a, b) { return a - b; });
+        html += sectionHead("The Draft Board", y + " draft, " + s.draft.length + " selections across " + rdKeys.length + " rounds") +
+          rdKeys.map(function (rd) {
+            var picks = rounds[rd].slice().sort(function (a, b) { return a.pk - b.pk; });
+            return '<details class="round-details"' + (rd === 1 ? " open" : "") + "><summary>Round " + rd + "</summary>" +
+              '<div class="pick-grid">' + picks.map(function (p) {
+                return '<div class="pick"><span class="pk">' + p.rd + "." + String(p.pk).padStart(2, "0") + "</span>" +
+                  '<span class="pl">' + esc(p.player) + '</span><span class="ow">' + esc(ownerName(p.owner)) + "</span></div>";
+              }).join("") + "</div></details>";
+          }).join("");
+      }
+
+      /* weekly results */
+      var weeks = EFFL.seasonWeeks(y);
+      html += sectionHead("Weekly Results", "Every game of the " + y + " campaign") +
+        weeks.map(function (w) {
+          return '<details class="round-details"><summary>Week ' + w.week + (w.playoff ? " · Playoffs" : "") + "</summary>" +
+            '<div class="pick-grid">' + w.games.map(function (m) {
+              var aWin = m.a_pts > m.b_pts;
+              return '<div class="pick"><span class="pl">' +
+                (aWin ? "<span class=\"gold\">" : "") + esc(ownerName(m.a)) + " " + fmtPts(m.a_pts) + (aWin ? "</span>" : "") +
+                ' <span class="dim">at</span> ' +
+                (!aWin ? "<span class=\"gold\">" : "") + esc(ownerName(m.b)) + " " + fmtPts(m.b_pts) + (!aWin ? "</span>" : "") +
+                "</span></div>";
+            }).join("") + "</div></details>";
+        }).join("");
+
+      $("#season-body").innerHTML = html;
+      EFFL.makeSortable($("#standings-tbl"));
+    }
+
+    function bannerCell(label, ownerKey, team, color) {
+      return '<div class="banner-card" style="border-top-color:' + color + '">' +
+        '<div class="eyebrow left" style="margin-bottom:6px">' + label + "</div>" +
+        '<div class="champ">' + esc(ownerName(ownerKey)) + "</div>" +
+        '<div class="team">' + esc(team.team) + "</div>" +
+        '<div class="meta"><span>Record <b>' + rec(team) + "</b></span><span>PF <b>" + fmtPts(team.pf) + "</b></span></div></div>";
+    }
+
+    function bkGame(m, year, isTitle) {
+      var aWin = m.a_pts > m.b_pts;
+      function side(k, ptsVal, won) {
+        return '<div class="bk-team ' + (won ? "win" : "loss") + '"><span>' + esc(EFFL.teamOf(k, year)) +
+          ' <span class="dim">(' + esc(ownerName(k)) + ')</span></span><span class="pts">' + fmtPts(ptsVal) + "</span></div>";
+      }
+      return '<div class="bk-game' + (isTitle ? " title-game" : "") + '">' +
+        (isTitle ? '<div class="bk-tag">For the banner</div>' : "") +
+        side(m.a, m.a_pts, aWin) + side(m.b, m.b_pts, !aWin) + "</div>";
+    }
+
+    function sectionHead(title, sub) {
+      return '<div class="section-head mt-4"><div class="eyebrow left">' + esc(sub) + "</div>" +
+        '<h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">' + esc(title) + "</h2></div>";
+    }
+
+    renderYear(current);
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
