@@ -6,10 +6,28 @@ const SITE = {
   draftDate2026: null, // ISO string when announced; null renders "Date to be proclaimed"
   nextMeetingDate: null,
 
+  // THE TALLY LEDGER OF RECORD. Ruled by the Annotator, July 2026: the tally
+  // goes to the worst regular season finish, not the consolation ladder.
+  // This ledger overrides the transform's tally at load, so regenerating
+  // league-data.js can never rewrite the standings of shame.
+  tallyLedger: {
+    2015: "professor",
+    2016: "gov",
+    2017: "gary",     // per the Annotator: Gary lost in 2017
+    2018: "rogue",
+    2019: "rogue",    // tied with gary at 4-10; seeded last of record
+    2020: "lop",
+    2021: "professor",
+    2022: "charlie",  // tied with gary at 5-10; seeded last of record
+    2023: "rogue",
+    2024: "gov",
+    2025: "rogue"     // pending proof of ink
+  },
+
   news: [
     "EST. 2015 AT THE ESTATE, TEMPE, ARIZONA",
     "CHEN: FOUR TITLES, ZERO TALLIES. THE DYNASTY IS REAL",
-    "GOV: 2025 CHAMPION. TALLY IN 2023. REDEMPTION COMPLETE",
+    "GOV: 2025 CHAMPION. TALLY IN 2024. DEAD LAST TO THE BANNER IN ONE YEAR",
     "ALL-TIME SINGLE WEEK: ROGUE, 267.0 (2015 PLAYOFFS)",
     "CLOSEST GAME EVER: ROGUE 113.54, CHEN 113.48 (2024)",
     "THE POWER INDEX SAYS HERM IS THE GREATEST OF ALL TIME. DISCUSS",

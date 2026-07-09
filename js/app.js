@@ -494,9 +494,26 @@ var EFFL = (function () {
     els.forEach(function (el) { io.observe(el); });
   }
 
+  /* ---------- the Annotator's overrides ---------- */
+
+  /* SITE.tallyLedger is the record of actual ink. It overrides the
+     transform's finish-based tally before anything renders, so a
+     regenerated league-data.js can never rewrite the standings of shame. */
+  function applyTallyLedger() {
+    var ledger = SITE.tallyLedger;
+    if (!ledger) return;
+    LEAGUE.seasons.forEach(function (s) {
+      if (ledger[s.year]) s.tally = ledger[s.year];
+    });
+    Object.keys(LEAGUE.owners).forEach(function (k) {
+      LEAGUE.owners[k].career.tallies = LEAGUE.seasons.filter(function (s) { return s.tally === k; }).length;
+    });
+  }
+
   /* ---------- boot ---------- */
 
   function init() {
+    applyTallyLedger();
     buildTicker();
     buildNav();
     buildCommishBar();
