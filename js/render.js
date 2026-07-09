@@ -1023,8 +1023,7 @@ var PAGES = {};
             t.teams.a.map(function (k) { return esc(ownerName(k)); }).join(", ") +
             ' <span class="dim">vs</span> ' +
             t.teams.b.map(function (k) { return esc(ownerName(k)); }).join(", ") + "</span></div>" : "") +
-          '<div class="kv"><span class="k">Result</span><span class="v">' +
-            (t.result ? esc(t.result) : '<span class="dim">Ryder Cup result pending verification</span>') + "</span></div>" +
+          (t.result ? '<div class="kv"><span class="k">Result</span><span class="v">' + esc(t.result) + "</span></div>" : "") +
           '<div class="kv"><span class="k">Attendees</span><span class="v">' + esc(mc.attendees_note) + "</span></div>" +
         "</div>" +
         (t.format_note ? '<div class="doc-note" style="margin-top:12px"><b>Format of Record.</b> ' + esc(t.format_note) + "</div>" : "") +

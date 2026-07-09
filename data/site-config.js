@@ -77,6 +77,8 @@ const SITE = {
     ethos: "Getting together with the boys in person, drafting, making fun of each other, and having a good laugh. Side bets and games are all part of the game.",
     trophy: "A large trophy, created by the league a couple years back.", // photos pending
     attendees_note: "Attendance has been the same crew every year.",
+    // Per the Annotator (July 2026): teams redraft every year, so no running
+    // results record is displayed. A trip's result renders only if set here.
     trips: [
       { year: 2020, location: "Isle of Palms, South Carolina", courses: [], lodging: null,
         result: null, legend: "The inaugural McCockiner Cup, where Charlie achieved league-wide fame for a historic case of swamp ass in heat he had never before experienced.",
