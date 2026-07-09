@@ -7,3 +7,4 @@ reference/
 # docs/ holds the alias editions of record; the sealed originals live in sources/.
 # Raw source documents (memos, itineraries, decks). Real names live here; never committed.
 sources/
+.playwright-mcp/
