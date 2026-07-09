@@ -33,14 +33,12 @@
 <div id="commish-bar"></div>
 <main>
 
-  <section class="hero" data-hero="estate">
-    <img class="hero-crest" src="assets/EFFL_Crest.png" alt="" aria-hidden="true">
+  <section class="hero" data-hero-photo="assets/mccockiner/2023/05.jpg" data-hero-pos="center 38%">
     <div class="hero-inner">
-      <div class="hero-kicker">Est. 2015 · The Estate, Tempe, Arizona</div>
+      <div class="hero-kicker" id="home-est"></div>
       <h1 class="hero-title">The Estate</h1>
-      <div class="motto" style="font-size:clamp(.9rem,3vw,1.3rem);margin:4px 0 14px">Victoria Aut Tattoo</div>
-      <p class="hero-sub">The permanent record, the law, and the hype engine of the Estate
-      Fantasy Football League. Head to head warfare since 2015, preserved in full.</p>
+      <div class="motto" style="font-size:clamp(.9rem,3vw,1.3rem);margin:4px 0 14px" id="home-motto"></div>
+      <p class="hero-sub" id="home-sub"></p>
       <div class="mt-3">
         <a class="btn" href="champions.html">Hall of Champions</a>
         <a class="btn-ghost" href="seasons.html" style="margin-left:8px">Season Archive</a>
@@ -48,47 +46,44 @@
     </div>
   </section>
 
-  <section class="section" style="padding-top:0;margin-top:-34px;position:relative;z-index:2">
+  <section class="section" style="padding-top:22px;padding-bottom:0;position:relative;z-index:2">
     <div class="wrap">
-      <div class="grid cols-4" id="home-stats"></div>
+      <div class="tile-row" id="status-tiles"></div>
     </div>
   </section>
 
-  <section class="section" style="padding-top:14px">
-    <div class="wrap center">
-      <div class="eyebrow center">The Clock Is Running</div>
-      <h2 class="section-title" id="home-count-title">The 2026 Draft</h2>
-      <div id="draft-count" class="mt-2"></div>
-      <div class="mt-2"><a class="btn-ghost" href="draft.html">Enter Draft Central</a></div>
+  <section class="section" style="padding-top:34px;padding-bottom:0">
+    <div class="wrap">
+      <div class="grid" style="grid-template-columns:1fr;gap:22px" id="home-feature"></div>
     </div>
   </section>
 
-  <div class="wrap"><div class="ornament" aria-hidden="true"><i></i><i></i><i></i></div></div>
-
-  <section class="section">
+  <section class="section" style="padding-top:34px;padding-bottom:0">
     <div class="wrap">
-      <div class="grid" style="grid-template-columns:1fr;gap:22px" id="home-feature">
-        <!-- champion spotlight + standings render here -->
+      <div class="section-head">
+        <div class="eyebrow left">Settle It On The Record</div>
+        <h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">Rivalry Of The Day</h2>
       </div>
+      <div id="rivalry-day"></div>
     </div>
   </section>
 
-  <section class="section" style="padding-top:0">
+  <section class="section" style="padding-top:34px;padding-bottom:0">
     <div class="wrap">
       <div class="section-head">
         <div class="eyebrow left">The Vault Never Closes</div>
-        <h2 class="section-title">This Week In EFFL History</h2>
+        <h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">This Week In EFFL History</h2>
         <p class="section-sub" id="twih-sub"></p>
       </div>
-      <div id="twih"></div>
+      <div id="twih" style="display:grid;gap:10px"></div>
     </div>
   </section>
 
-  <section class="section" style="padding-top:0">
+  <section class="section">
     <div class="wrap">
       <div class="section-head">
         <div class="eyebrow left">The Full Record</div>
-        <h2 class="section-title">Inside The Estate</h2>
+        <h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">Inside The Estate</h2>
       </div>
       <div class="grid cols-3" id="home-cards"></div>
     </div>

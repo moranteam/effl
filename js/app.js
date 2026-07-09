@@ -478,6 +478,32 @@ var EFFL = (function () {
     });
   }
 
+  /* ---------- faces + photo heroes ---------- */
+
+  /* Owner avatar chip. Falls back to initials when no cleared portrait. */
+  function avatar(k, cls) {
+    var p = (SITE.franchisePhotos || {})[k];
+    var size = cls || "";
+    if (p) {
+      return '<img class="avatar ' + size + '" loading="lazy" src="' + esc(p.src) + '" alt="" aria-hidden="true"' +
+        (p.pos ? ' style="object-position:' + esc(p.pos) + '"' : "") + ">";
+    }
+    var o = LEAGUE.owners[k];
+    var initials = o ? o.display.replace(/^The /, "").slice(0, 2).toUpperCase() : "?";
+    var px = size === "xl" ? 92 : size === "lg" ? 52 : size === "sm" ? 26 : 34;
+    return '<span class="avatar-txt ' + size + '" style="width:' + px + "px;height:" + px + 'px" aria-hidden="true">' + esc(initials) + "</span>";
+  }
+
+  /* Full-bleed photo hero: pages declare data-hero-photo (and optional
+     data-hero-pos); the scrim lives in CSS (.photo-hero::after). */
+  function applyHeroPhoto() {
+    var hero = $(".hero[data-hero-photo]");
+    if (!hero) return;
+    hero.classList.add("photo-hero");
+    hero.style.backgroundImage = 'url("' + hero.dataset.heroPhoto + '")';
+    if (hero.dataset.heroPos) hero.style.backgroundPosition = hero.dataset.heroPos;
+  }
+
   /* ---------- scroll reveal ---------- */
 
   function initReveal() {
@@ -514,6 +540,7 @@ var EFFL = (function () {
 
   function init() {
     applyTallyLedger();
+    applyHeroPhoto();
     buildTicker();
     buildNav();
     buildCommishBar();
@@ -529,7 +556,7 @@ var EFFL = (function () {
     store: store,
     OWNER_ORDER: OWNER_ORDER, OWNER_ORDER_ALL: OWNER_ORDER_ALL, CHART_COLORS: CHART_COLORS,
     ownerName: ownerName, teamOf: teamOf, seasonByYear: seasonByYear, latestSeason: latestSeason, years: years,
-    countdown: countdown, makeSortable: makeSortable,
+    countdown: countdown, makeSortable: makeSortable, avatar: avatar,
     gamesOf: gamesOf, rivalryGames: rivalryGames, seasonWeeks: seasonWeeks, bracket: bracket,
     eloSeries: eloSeries, thisWeekInHistory: thisWeekInHistory,
     galleryHTML: galleryHTML, bindGalleries: bindGalleries, openLightbox: openLightbox,
