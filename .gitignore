@@ -6,3 +6,5 @@ assets/raw-photos/
 reference/
 # Current PDFs contain real names (Rule 5). Sanitized versions drop in during Phase 3.
 docs/*.pdf
+# Raw source documents (memos, itineraries, decks). Real names live here; never committed.
+sources/
