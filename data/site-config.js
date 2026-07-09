@@ -54,9 +54,15 @@ const SITE = {
     gary: { src: "assets/franchises/gary.jpg", alt: "Gary, mid celebration", pos: "50% 18%" },
     gov: { src: "assets/franchises/gov.jpg", alt: "Gov, airborne above a folding table", pos: "50% 35%" },
     professor: { src: "assets/franchises/professor.jpg", alt: "The Professor engineering the broadcast", pos: "50% 25%" },
-    lop: { src: "assets/franchises/lop.jpg", alt: "Lop, cooperating fully with local authorities", pos: "50% 30%" }
-    // chen, rogue, herm, charlie: portraits pending from the Annotator
+    lop: { src: "assets/franchises/lop.jpg", alt: "Lop, cooperating fully with local authorities", pos: "50% 30%" },
+    rogue: { src: "assets/franchises/rogue.jpg", alt: "Rogue, mid negotiation", pos: "50% 35%" },
+    chen: { src: "assets/franchises/chen.jpg", alt: "Chen, the Commissioner at rest", pos: "50% 40%" },
+    herm: { src: "assets/franchises/herm.jpg", alt: "Herm reporting live from the range", pos: "50% 100%" },
+    charlie: { src: "assets/franchises/charlie.jpg", alt: "Charlie, the Annotator", pos: "50% 45%" }
   },
+
+  // The Tally Wall: proof furnished to the Assembly. Uncaptioned by ruling of the Annotator.
+  tallyProof: ["assets/tally/01.jpg", "assets/tally/02.jpg"],
 
   prophecies: { 2026: [] }, // {owner, text, verdict: null|"RIGHT"|"WRONG"}
 
@@ -73,20 +79,24 @@ const SITE = {
     attendees_note: "Attendance has been the same crew every year.",
     trips: [
       { year: 2020, location: "Isle of Palms, South Carolina", courses: [], lodging: null,
-        result: null, legend: "The inaugural McCockiner Cup, where Charlie achieved league-wide fame for a historic case of swamp ass in heat he had never before experienced." },
+        result: null, legend: "The inaugural McCockiner Cup, where Charlie achieved league-wide fame for a historic case of swamp ass in heat he had never before experienced.",
+        gallery: ["assets/mccockiner/2020/01.jpg", "assets/mccockiner/2020/02.jpg", "assets/mccockiner/2020/03.jpg", "assets/mccockiner/2020/04.jpg"] },
       { year: 2021, location: "Lake Tahoe (Incline Village, Nevada)",
         courses: ["Coyote Moon (Truckee)", "Incline Village Championship", "Incline Village Mountain"],
         lodging: "Lakefront house on Lakeshore Blvd, Incline Village, Nevada",
         teams: { a: ["gov", "chen", "lop", "professor"], b: ["charlie", "rogue", "herm", "gary"] },
         format_note: "Per the official memo and itinerary: a scramble at Coyote Moon, team play on the Championship course, singles on the Mountain course, with the draft held on site and Fred's steak at the residence.",
-        result: null, legend: "The crew flew in from all over the country and landed directly into the Caldor Fire. Dense, eventually dangerous smoke ended the trip early, but every planned round was somehow played. The Cup that the mountain tried and failed to refuse." },
+        result: null, legend: "The crew flew in from all over the country and landed directly into the Caldor Fire. Dense, eventually dangerous smoke ended the trip early, but every planned round was somehow played. The Cup that the mountain tried and failed to refuse.",
+        gallery: ["assets/mccockiner/2021/01.jpg", "assets/mccockiner/2021/02.jpg", "assets/mccockiner/2021/03.jpg", "assets/mccockiner/2021/04.jpg", "assets/mccockiner/2021/05.jpg", "assets/mccockiner/2021/06.jpg", "assets/mccockiner/2021/07.jpg", "assets/mccockiner/2021/08.jpg", "assets/mccockiner/2021/09.jpg", "assets/mccockiner/2021/10.jpg"] },
       { year: 2022, location: "Boyne, Michigan", courses: [],
         lodging: null,
         format_note: "Team Pervert against Team Sicko. Ten points across three days: two person aggregate, scramble, and alternate shot on day one, best ball on day two, singles match play on day three. A tie is settled by which team finishes a case of Heineken faster.",
-        result: null, legend: "Arguably the greatest McCockiner Cup ever played. So good the league later returned for Chen's bachelor party." },
+        result: null, legend: "Arguably the greatest McCockiner Cup ever played. So good the league later returned for Chen's bachelor party.",
+        gallery: ["assets/mccockiner/2022/01.jpg", "assets/mccockiner/2022/02.jpg", "assets/mccockiner/2022/03.jpg", "assets/mccockiner/2022/04.jpg", "assets/mccockiner/2022/05.jpg", "assets/mccockiner/2022/06.jpg", "assets/mccockiner/2022/07.jpg", "assets/mccockiner/2022/08.jpg", "assets/mccockiner/2022/09.jpg", "assets/mccockiner/2022/10.jpg", "assets/mccockiner/2022/11.jpg", "assets/mccockiner/2022/12.jpg", "assets/mccockiner/2022/13.jpg"] },
       { year: 2023, location: "Streamsong, Florida", courses: [],
         lodging: "Streamsong Resort, four Sunrise View studio suites, August 9 to 13",
-        result: null, legend: "The hottest weekend on record. A feels-like temperature of 120 degrees, and one owner's composure did not survive it." }
+        result: null, legend: "The hottest weekend on record. A feels-like temperature of 120 degrees, and one owner's composure did not survive it.",
+        gallery: ["assets/mccockiner/2023/01.jpg", "assets/mccockiner/2023/02.jpg", "assets/mccockiner/2023/03.jpg", "assets/mccockiner/2023/04.jpg", "assets/mccockiner/2023/05.jpg", "assets/mccockiner/2023/06.jpg", "assets/mccockiner/2023/07.jpg", "assets/mccockiner/2023/08.jpg", "assets/mccockiner/2023/09.jpg", "assets/mccockiner/2023/10.jpg", "assets/mccockiner/2023/11.jpg", "assets/mccockiner/2023/12.jpg", "assets/mccockiner/2023/13.jpg", "assets/mccockiner/2023/14.jpg"] }
     ],
     gap_note: "Dark years: 2015 to 2019 (the league had not yet organized the trip) and 2024 to 2026 (the weddings era). The record awaits the Return.",
     dream_venues: ["Pinehurst", "Pebble Beach", "Payne's Valley"],

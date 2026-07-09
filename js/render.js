@@ -377,6 +377,17 @@ var PAGES = {};
         '<div class="tally-years">' + chips + "</div>" +
       "</div>";
     }).join("");
+
+    /* proof furnished to the Assembly */
+    var proof = SITE.tallyProof || [];
+    if (proof.length && $("#ink-proof")) {
+      $("#ink-proof").innerHTML =
+        '<div class="section-head"><div class="eyebrow left">Compliance Is A Matter Of Honor</div>' +
+        '<h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">Proof Of Ink</h2>' +
+        '<p class="section-sub">Furnished to the Assembly and entered into the permanent record, as Article X requires.</p></div>' +
+        EFFL.galleryHTML(proof, "proof-gallery");
+      EFFL.bindGalleries($("#ink-proof"));
+    }
   };
 
   /* ======================================================================
@@ -1017,9 +1028,12 @@ var PAGES = {};
           '<div class="kv"><span class="k">Attendees</span><span class="v">' + esc(mc.attendees_note) + "</span></div>" +
         "</div>" +
         (t.format_note ? '<div class="doc-note" style="margin-top:12px"><b>Format of Record.</b> ' + esc(t.format_note) + "</div>" : "") +
-        '<div class="empty-state mt-2" style="padding:14px"><b>Gallery Pending</b>Photos arrive with the Phase 3 archive drop.</div>' +
+        (t.gallery && t.gallery.length
+          ? EFFL.galleryHTML(t.gallery)
+          : '<div class="empty-state mt-2" style="padding:14px"><b>Gallery Pending</b>Photos arrive with the archive drop.</div>') +
       "</div>";
     }).join("");
+    EFFL.bindGalleries($("#mc-trips"));
 
     /* dream venues + quotes */
     $("#mc-extra").innerHTML =

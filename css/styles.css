@@ -1151,6 +1151,83 @@ th.sortable.desc::after { content: " \2193"; opacity: 1; color: var(--gold); }
 .twih-side.win .o, .twih-side.win .p { color: var(--gold); }
 .twih-mid { font-family: var(--font-label); font-size: .56rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); text-align: center; }
 
+/* Photo galleries + lightbox */
+.trip-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 14px;
+}
+@media (min-width: 700px) { .trip-gallery { grid-template-columns: repeat(4, 1fr); } }
+.g-item {
+  display: block;
+  padding: 0;
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  cursor: zoom-in;
+  background: var(--panel-2);
+}
+.g-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .5s ease, opacity .3s;
+}
+.g-item:hover img { transform: scale(1.06); }
+.g-item:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(11, 14, 19, .95);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px 54px;
+  cursor: zoom-out;
+}
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  border: 1px solid var(--gold-dim);
+  box-shadow: 0 40px 90px -20px rgba(0, 0, 0, .9);
+}
+.lightbox .lb-close {
+  position: absolute;
+  top: 14px; right: 18px;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--ink);
+  line-height: 1;
+  padding: 6px 12px;
+}
+.lightbox .lb-close:hover { color: var(--gold); }
+.lightbox .lb-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  color: var(--muted);
+  padding: 18px 14px;
+}
+.lightbox .lb-nav:hover { color: var(--gold); }
+.lightbox .lb-prev { left: 4px; }
+.lightbox .lb-next { right: 4px; }
+.lightbox .lb-count {
+  position: absolute;
+  bottom: 16px; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-label);
+  font-size: .64rem;
+  letter-spacing: .3em;
+  color: var(--muted);
+}
+
 /* Footer */
 .site-footer {
   border-top: 1px solid var(--rule);

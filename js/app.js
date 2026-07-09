@@ -408,6 +408,76 @@ var EFFL = (function () {
     return { week: wk, games: out };
   }
 
+  /* ---------- lightbox (shared by every gallery) ---------- */
+
+  var lb = { list: [], idx: 0, el: null };
+
+  function openLightbox(list, idx) {
+    lb.list = list; lb.idx = idx;
+    if (!lb.el) {
+      lb.el = document.createElement("div");
+      lb.el.className = "lightbox";
+      lb.el.innerHTML = '<img alt="Expanded league photograph">' +
+        '<button class="lb-close" type="button" aria-label="Close">&times;</button>' +
+        '<button class="lb-nav lb-prev" type="button" aria-label="Previous">&lsaquo;</button>' +
+        '<button class="lb-nav lb-next" type="button" aria-label="Next">&rsaquo;</button>' +
+        '<div class="lb-count"></div>';
+      lb.el.addEventListener("click", function (e) {
+        if (e.target.classList.contains("lb-prev")) { step(-1); return; }
+        if (e.target.classList.contains("lb-next")) { step(1); return; }
+        closeLightbox();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (!lb.el || lb.el.parentNode === null) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") step(-1);
+        if (e.key === "ArrowRight") step(1);
+      });
+    }
+    document.body.appendChild(lb.el);
+    document.body.style.overflow = "hidden";
+    show();
+  }
+
+  function show() {
+    $("img", lb.el).src = lb.list[lb.idx];
+    $(".lb-count", lb.el).textContent = (lb.idx + 1) + " OF " + lb.list.length;
+    var multi = lb.list.length > 1 ? "" : "none";
+    $(".lb-prev", lb.el).style.display = multi;
+    $(".lb-next", lb.el).style.display = multi;
+  }
+
+  function step(d) {
+    lb.idx = (lb.idx + d + lb.list.length) % lb.list.length;
+    show();
+  }
+
+  function closeLightbox() {
+    if (lb.el && lb.el.parentNode) lb.el.parentNode.removeChild(lb.el);
+    document.body.style.overflow = "";
+  }
+
+  /* renders a clickable thumbnail grid; every image opens the shared lightbox */
+  function galleryHTML(list, cls) {
+    return '<div class="trip-gallery' + (cls ? " " + cls : "") + '">' +
+      list.map(function (src, i) {
+        return '<button class="g-item" type="button" data-g="' + esc(src) + '" data-i="' + i + '">' +
+          '<img loading="lazy" src="' + esc(src) + '" alt="League photograph ' + (i + 1) + '">' +
+        "</button>";
+      }).join("") + "</div>";
+  }
+
+  function bindGalleries(root) {
+    $all(".trip-gallery", root).forEach(function (g) {
+      var list = $all(".g-item", g).map(function (b) { return b.dataset.g; });
+      $all(".g-item", g).forEach(function (b) {
+        b.addEventListener("click", function () {
+          openLightbox(list, parseInt(b.dataset.i, 10));
+        });
+      });
+    });
+  }
+
   /* ---------- scroll reveal ---------- */
 
   function initReveal() {
@@ -445,6 +515,7 @@ var EFFL = (function () {
     countdown: countdown, makeSortable: makeSortable,
     gamesOf: gamesOf, rivalryGames: rivalryGames, seasonWeeks: seasonWeeks, bracket: bracket,
     eloSeries: eloSeries, thisWeekInHistory: thisWeekInHistory,
+    galleryHTML: galleryHTML, bindGalleries: bindGalleries, openLightbox: openLightbox,
     ornament: '<div class="ornament" aria-hidden="true"><i></i><i></i><i></i></div>',
     init: init
   };
