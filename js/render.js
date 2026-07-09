@@ -653,6 +653,30 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     THE CONSTITUTION (document text lives in the HTML; dynamic bits here)
+     ====================================================================== */
+  PAGES.constitution = function () {
+    $("#con-sub").textContent = "Twelve articles of league law, consolidated by the Office of the Annotator. " +
+      "Est. " + LEAGUE.meta.est + " at " + LEAGUE.meta.origin + ".";
+
+    /* Article X, Section 4: current pending obligation, from the data layer */
+    var latest = EFFL.latestSeason();
+    var t = latest.teams.filter(function (x) { return x.owner === latest.tally; })[0];
+    $("#tally-obligation").textContent = "The " + latest.year + " obligation of " + t.team +
+      " (" + t.w + " and " + t.l + ") is pending as of this writing.";
+
+    /* signature seats, aliases only */
+    $("#signature-seats").innerHTML = EFFL.OWNER_ORDER.map(function (k) {
+      var offices = (LEAGUE.owners[k].offices || [])[0];
+      return '<div class="panel" style="padding:18px 12px 12px;text-align:center">' +
+        '<div class="hairline" style="margin-bottom:10px"></div>' +
+        '<div class="display" style="font-size:1.4rem">' + esc(ownerName(k)) + "</div>" +
+        '<div class="muted" style="font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;font-family:var(--font-label)">' +
+        esc(offices || "Owner of Record") + "</div></div>";
+    }).join("");
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
