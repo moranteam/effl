@@ -55,21 +55,27 @@ const SITE = {
   transactions: [], // {year, headline, parties: [], details, verdict: "FAME"|"SHAME", annotator_note}
 
   mccockner: {
-    name: "The McCockner",
+    name: "The McCockiner Cup", // spelling per the founding documents, confirmed by the Annotator July 2026
     origin: "Born a few years into the league from the desire to hold the draft live and in person each year, complete with a blowup draft board and every name posted in order. Each edition grew bigger, more serious, and more sophisticated in location, golf, and competition.",
     format: "Ryder Cup style. Teams drafted fresh every year, led by captains. The fantasy draft is held on site.",
     ethos: "Getting together with the boys in person, drafting, making fun of each other, and having a good laugh. Side bets and games are all part of the game.",
     trophy: "A large trophy, created by the league a couple years back.", // photos pending
     attendees_note: "Attendance has been the same crew every year.",
     trips: [
-      // TODO: Charlie to confirm exact year per trip (sequence conflicts with stated gap years)
       { year: 2020, location: "Isle of Palms, South Carolina", courses: [], lodging: null,
-        result: null, legend: "The inaugural McCockner, where Charlie achieved league-wide fame for a historic case of swamp ass in heat he had never before experienced." },
-      { year: 2021, location: "Lake Tahoe, California", courses: [], lodging: null,
-        result: null, legend: "The crew flew in from all over the country and landed directly into the Caldor Fire. Dense, eventually dangerous smoke ended the trip early. The McCockner that the mountain refused." },
-      { year: 2022, location: "Boyne, Michigan", courses: [], lodging: null,
-        result: null, legend: "Arguably the greatest McCockner ever played. So good the league later returned for Chen's bachelor party." },
-      { year: 2023, location: "Streamsong, Florida", courses: [], lodging: null,
+        result: null, legend: "The inaugural McCockiner Cup, where Charlie achieved league-wide fame for a historic case of swamp ass in heat he had never before experienced." },
+      { year: 2021, location: "Lake Tahoe (Incline Village, Nevada)",
+        courses: ["Coyote Moon (Truckee)", "Incline Village Championship", "Incline Village Mountain"],
+        lodging: "Lakefront house on Lakeshore Blvd, Incline Village, Nevada",
+        teams: { a: ["gov", "chen", "lop", "professor"], b: ["charlie", "rogue", "herm", "gary"] },
+        format_note: "Per the official memo and itinerary: a scramble at Coyote Moon, team play on the Championship course, singles on the Mountain course, with the draft held on site and Fred's steak at the residence.",
+        result: null, legend: "The crew flew in from all over the country and landed directly into the Caldor Fire. Dense, eventually dangerous smoke ended the trip early, but every planned round was somehow played. The Cup that the mountain tried and failed to refuse." },
+      { year: 2022, location: "Boyne, Michigan", courses: [],
+        lodging: null,
+        format_note: "Team Pervert against Team Sicko. Ten points across three days: two person aggregate, scramble, and alternate shot on day one, best ball on day two, singles match play on day three. A tie is settled by which team finishes a case of Heineken faster.",
+        result: null, legend: "Arguably the greatest McCockiner Cup ever played. So good the league later returned for Chen's bachelor party." },
+      { year: 2023, location: "Streamsong, Florida", courses: [],
+        lodging: "Streamsong Resort, four Sunrise View studio suites, August 9 to 13",
         result: null, legend: "The hottest weekend on record. A feels-like temperature of 120 degrees, and one owner's composure did not survive it." }
     ],
     gap_note: "Dark years: 2015 to 2019 (the league had not yet organized the trip) and 2024 to 2026 (the weddings era). The record awaits the Return.",

@@ -156,7 +156,7 @@ var EFFL = (function () {
     ]},
     { title: "Events", links: [
       ["draft.html", "Draft Central"],
-      ["mccockner.html", "The McCockner"],
+      ["mccockner.html", "The McCockiner Cup"],
       ["trophy.html", "The Trophy Room"]
     ]}
   ];

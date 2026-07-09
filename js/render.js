@@ -1005,10 +1005,15 @@ var PAGES = {};
             (t.courses && t.courses.length ? esc(t.courses.join(", ")) : '<span class="dim">Of record, pending</span>') + "</span></div>" +
           '<div class="kv"><span class="k">Lodging</span><span class="v">' +
             (t.lodging ? esc(t.lodging) : '<span class="dim">Pending</span>') + "</span></div>" +
+          (t.teams ? '<div class="kv"><span class="k">Teams</span><span class="v">' +
+            t.teams.a.map(function (k) { return esc(ownerName(k)); }).join(", ") +
+            ' <span class="dim">vs</span> ' +
+            t.teams.b.map(function (k) { return esc(ownerName(k)); }).join(", ") + "</span></div>" : "") +
           '<div class="kv"><span class="k">Result</span><span class="v">' +
             (t.result ? esc(t.result) : '<span class="dim">Ryder Cup result pending verification</span>') + "</span></div>" +
           '<div class="kv"><span class="k">Attendees</span><span class="v">' + esc(mc.attendees_note) + "</span></div>" +
         "</div>" +
+        (t.format_note ? '<div class="doc-note" style="margin-top:12px"><b>Format of Record.</b> ' + esc(t.format_note) + "</div>" : "") +
         '<div class="empty-state mt-2" style="padding:14px"><b>Gallery Pending</b>Photos arrive with the Phase 3 archive drop.</div>' +
       "</div>";
     }).join("");
@@ -1168,7 +1173,7 @@ var PAGES = {};
       ["franchises.html", "Franchises", EFFL.OWNER_ORDER.length + " franchises, one registry", "estate"],
       ["power.html", "The Power Index", "Elo, all play, and the Luck Index", "vault"],
       ["draft.html", "Draft Central", "The Keeper Codex and the countdown", "war"],
-      ["mccockner.html", "The McCockner", "The golf record of the Assembly", "dusk"]
+      ["mccockner.html", "The McCockiner Cup", "The golf record of the Assembly", "dusk"]
     ];
     $("#home-cards").innerHTML = cards.map(function (c) {
       return '<a class="nav-card hero reveal" data-hero="' + c[3] + '" href="' + c[0] + '">' +

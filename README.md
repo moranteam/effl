@@ -17,13 +17,13 @@ Multi page architecture with shared css/, js/, and data/ layers.
   printed JSON, compact it before committing:
   `node -e "const fs=require('fs');const L=eval(fs.readFileSync('data/league-data.js','utf8')+'; LEAGUE');fs.writeFileSync('data/league-data.js','const LEAGUE = '+JSON.stringify(L)+';\n')"`
 - `data/site-config.js` exposes `const SITE`: the curated content layer
-  (news ticker, motions, prophecies, awards, transactions, McCockner)
+  (news ticker, motions, prophecies, awards, transactions, McCockiner Cup)
 - `js/app.js` builds the shared chrome (ticker, nav, footer) and computed
   utilities; `js/render.js` holds one renderer per page
 - `css/styles.css` is the Primetime design system
 
 The one permitted external runtime dependency is Leaflet (OpenStreetMap tiles)
-on the McCockner page, loaded from unpkg with SRI and a graceful offline
+on the McCockiner Cup page, loaded from unpkg with SRI and a graceful offline
 fallback. Fonts load from Google Fonts.
 
 ## Updating after a season (or mid season week)
@@ -65,5 +65,5 @@ GitHub Pages serves the repo root from the `main` branch
 - Phase 1 (done): full site, all pages, real data wired, placeholder gradient
   heroes, crest in nav
 - Phase 2: Higgsfield hero art, franchise badges, OG share cards
-- Phase 3: McCockner trip data and photos, trophy photography, sanitized
+- Phase 3: McCockiner Cup trip data and photos, trophy photography, sanitized
   Constitution and Minutes PDFs into /docs, launch
