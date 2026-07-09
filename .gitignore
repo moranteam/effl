@@ -1,0 +1,8 @@
+tools/
+tools_pkg/
+assets/raw-photos/
+*.zip
+.DS_Store
+reference/
+# Current PDFs contain real names (Rule 5). Sanitized versions drop in during Phase 3.
+docs/*.pdf

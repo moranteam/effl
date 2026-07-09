@@ -1,0 +1,181 @@
+# ESTATE-LEAGUE-MASTER-PROMPT.md
+## The Estate Fantasy Football League: Official League Site
+### Master Build Prompt v1.0 (July 2026)
+
+This is the authoritative build prompt for the EFFL league site. It supersedes all prior discussion. Build in Claude Code, in a NEW dedicated repo, following every rule below.
+
+---
+
+## 1. MISSION
+
+Build a god tier, NFL-franchise-grade league website that serves as the permanent record, database, and hype engine of the Estate Fantasy Football League (est. 2015, The Estate, Tempe, Arizona). It is a living almanac: 11 seasons of real data, the Constitution, the Minutes, the Tally Wall, and The McCockner. Audience: the 8 owners. Quality bar: at or above moranteam.github.io/ryder-cup-2033.
+
+## 2. NON-NEGOTIABLE RULES
+
+1. NEVER use em dashes, en dashes, or hyphens as dashes in any output. Rephrase instead. Grep-verify before every commit: `grep -rP "\x{2014}|\x{2013}" --include="*.html" --include="*.css" --include="*.js" .` must return nothing.
+2. Vanilla HTML/CSS/JS only. No React, no Tailwind, no build tools, no npm.
+3. Multi-page architecture (like Ryder Cup 2033), shared css/js/data. NOT single-file.
+4. `data/league-data.js` is the single source of truth. Pages render from `LEAGUE`. Never hardcode stats into HTML.
+5. Public data uses fantasy aliases ONLY: Lop, Chen, Herm, Gov, The Professor, Rogue, Charlie, Gary, Perkins. No real surnames anywhere in the repo. Historical team names render as stored (they may contain first names; that is accepted). The real-name mapping lives only in `tools/` which is gitignored.
+6. Images: only Higgsfield-generated art or Charlie-provided photos, optimized via Pillow (max 1400px wide, JPEG quality 82 to 84, progressive; PNG only for badges/crest), committed to `/assets/`. NEVER hotlink external URLs. NEVER use unverified stock image IDs.
+7. Mobile-first, fully responsive down to 375px. The owners will open this from GroupMe on phones.
+8. localStorage prefix: `effl_v1_` for any client-side state (calculator inputs, theme prefs).
+9. Surgical edits for iteration; never regenerate whole files to change one section.
+10. Claude Code hygiene: run /compact then /clear before large multi-file edits. End every build prompt with "Show me the code you added."
+
+## 3. REPO AND DEPLOYMENT
+
+- New repo: `moranteam/effl` (dedicated personal repo, fully separate from any CBRE work)
+- Deploy: GitHub Pages at moranteam.github.io/effl
+- Structure:
+```
+/index.html          Home
+/champions.html      Hall of Champions
+/seasons.html        Season Archive (year selector)
+/records.html        The Record Book
+/tally.html          The Tally Wall
+/h2h.html            Head to Head Matrix
+/franchises.html     Franchise pages (8 owners + Perkins footnote)
+/legislation.html    The Legislation Tracker (motions and votes)
+/constitution.html   The Constitution (rendered + PDF)
+/minutes.html        Minutes Archive (rendered + PDF)
+/draft.html          Draft Central (countdown, keeper calculator)
+/power.html          The Power Index (Elo, all-play, Luck Index)
+/awards.html         Awards and Superlatives
+/transactions.html   Transaction Hall of Fame and Shame
+/prophecies.html     Prophecies of the Assembly
+/mccockner.html      The McCockner (annual golf trip archive)
+/trophy.html         The Trophy Room
+/css/styles.css
+/js/app.js  /js/render.js
+/data/league-data.js  /data/site-config.js
+/assets/              (all imagery)
+/docs/                (Constitution and Minutes PDFs)
+/tools/               (gitignored: transform_espn.py, effl_history_export.py)
+.gitignore            (must include tools/)
+```
+
+## 4. DESIGN SYSTEM: "PRIMETIME"
+
+Modern NFL franchise site, dark broadcast aesthetic, ASU blood in the veins.
+
+Colors (CSS custom properties):
+- `--bg: #0B0E13` (night charcoal), `--panel: #141924`, `--panel-2: #1B2130`
+- `--maroon: #8C1D40` (primary), `--maroon-deep: #5E1029`
+- `--gold: #FFC627` (accent, hairlines, numerals), `--gold-dim: #B08D2E`
+- `--ink: #ECEDEF` (text), `--muted: #97A0AE`
+- Gradients: maroon-to-black hero scrims; thin gold hairline rules between sections
+
+Typography (Google Fonts):
+- Bebas Neue: giant display numerals, page titles, scores
+- Oswald: section labels, table headers, nav (letterspaced uppercase, the consistent small-caps label system)
+- Inter: body text, table cells
+- Cinzel: EXCLUSIVELY for the motto VICTORIA AUT TATTOO
+
+Signature elements:
+- Broadcast marquee ticker (top of every page): scrolling league facts pulled from `site-config.js` news array plus rotating all-time records
+- Gold ornament dividers between major sections (three small diamonds, matching the printed documents)
+- Stat cards with oversized Bebas numerals and Oswald labels
+- Hover states: gold underline sweep; table rows glow maroon
+- The quote "Only way out is through" appears once, in the site footer, italic
+
+## 5. DATA CONTRACT
+
+`data/league-data.js` exposes `const LEAGUE` (generated by tools/transform_espn.py, already built and verified):
+- `meta`: name, abbr, est, origin, motto, quote, dues, platform
+- `owners{key}`: display, aliases[], offices[], franchise_2025, career{w,l,t,pf,titles,tallies,seasons,best,worst,playoffs}
+- `seasons[]`: year, champion, runner_up, tally, teams[{owner,team,w,l,t,pf,pa,finish,seed}], draft[{rd,pk,player,owner}], keepers[]
+- `seasons[].teams[].team` is the DISPLAY name (curated overrides already applied)
+- `h2h{a}{b}`: {w,l,t} all-time including playoffs
+- `records`: top_weeks, low_weeks, blowouts, nailbiters, best_pf_seasons, heartbreaks, robberies (10 each); elo_final, elo_timeline, allplay_luck, streaks
+- `matchups[]`: every game ever: {year,week,playoff,a,a_pts,b,b_pts} (720 rows)
+
+`data/site-config.js` (hand-edited): draftDate2026 (ISO, placeholder until announced), news[] ticker strings, commissioner announcements[], prophecies by season, motions[] (seeded from the 2025 minutes: 2025-I through 2025-VIII with full vote records), mccockner trips[] (pending Charlie data), awards[] (curated), transactions[] (curated FAME/SHAME case files), teamNameOverrides note.
+
+Update workflow (document in README): new season ends, Charlie reruns the export script, reruns transform, commits new league-data.js. Weekly-capable: same pipeline mid-season.
+
+## 6. PAGE SPECS
+
+**Home**: full-bleed cinematic hero (The Estate reimagined, see imagery plan) with title, motto in Cinzel, est. line. Ticker. Countdown to 2026 draft (from site-config; renders "Date to be proclaimed" if null). Champion spotlight card (Gov, 2025). Latest season standings snapshot. Section nav cards with hero thumbnails.
+
+**Hall of Champions**: one banner card per year 2015 to 2025: year, champion alias, team name, record, PF. Dynasty callout: Chen, 4 titles including back to back 2023 and 2024, zero tallies. Title count leaderboard.
+
+**Season Archive**: horizontal timeline scroller (2015 to 2025). Selecting a year renders: final standings (sortable), champion/runner up/tally banners, full draft board (collapsible by round, 16 rounds), keepers if any, and that season's weekly results from matchups.
+
+**The Record Book**: sortable tables from `records`: highest weeks ever, lowest weeks, biggest blowouts, closest games, best PF seasons; plus career table (W-L, win pct, PF, titles, tallies, playoff appearances). Every record row names year and week.
+
+**The Tally Wall**: the crown jewel of shame. Large graphic tally marks per owner (CSS-drawn strokes, groups of five), career totals, year chips under each. 2025 obligation (Rogue) marked PENDING PROOF OF INK. Cite the Tally Statute (Article X) with link to Constitution.
+
+**H2H Matrix**: 9x9 grid (8 owners + Perkins toggle, default hidden). Cell shows all-time W-L, color intensity by win pct. Tap/hover opens detail panel: full record, last meeting, biggest win in the rivalry (computed from matchups client-side).
+
+**Franchises**: one panel per owner: badge slot (Phase 2 art), career line, titles and tallies, finish-by-year sparkline chart (CSS/SVG, no libraries), nemesis and favorite opponent (computed from h2h), three signature games (best week, worst beat, biggest blowout involving them). Perkins gets a Registry footnote panel: Founding Owner, 2015 only, 10-3, seat passed to Gov.
+
+**Legislation Tracker**: every motion with vote tables matching the printed minutes style (2025-I through 2025-VIII seeded in site-config), status chips (RATIFIED, FAILED, TABLED, UNRESOLVED), searchable. Schema supports future sessions.
+
+**Constitution**: all 12 articles rendered in site style + download buttons for the PDF (in /docs). **Minutes Archive**: card per session (Vol. XI, July 21 2025) with rendered summary + embedded PDF + download.
+
+**Draft Central**: countdown hero; keeper rules (the Codex); interactive Keeper Cost Calculator: inputs are round originally drafted (3 to 16 or Free Agent) and consecutive years kept (1 to 3); outputs the pick owed; enforces no round 1 to 2 keepers, FA costs a 6th, 3 year max; persists last inputs to localStorage. Keeper history table (currently empty; populated manually as keepers are used).
+
+**Prophecies**: sealed ledger per season from site-config; 2026 shows 8 empty slots "to be entered after the draft"; past verdicts revealed with RIGHT or WRONG stamps.
+
+**McCockner**: structure complete, data pending. Per-trip cards: year, location, courses, lodging, attendees (aliases), results/format, photo gallery with lightbox. Map of all trip locations (Leaflet with OpenStreetMap tiles is the one permitted external dependency, loaded from unpkg with SRI, degrade gracefully offline). "The Return of The McCockner" countdown slot if a revival date exists.
+
+**Trophy Room**: hero photography of the actual trophy (photos pending), engraved champions list, trophy lore text slot.
+
+**The Power Index**: the analytics flex page. Career Elo ratings leaderboard with an SVG line chart of Elo over time per owner (from records.elo_timeline, toggleable lines); all-play standings (each owner's record if they played everyone every week, from records.allplay_luck); the Luck Index bar chart: actual wins minus deserved wins, positive bars gold (lucky), negative maroon (robbed). Plain-language explainers under each stat so nobody has to ask.
+
+**Awards and Superlatives**: two halves. COMPUTED (from records): The Heartbreak Award (highest score in a loss), The Robbery (lowest score in a win), longest win and loss streaks, dynasty and futility superlatives. CURATED (from site-config awards[]): Best Draft Pick Ever, Worst Keeper, Trade of the Decade, and any award the Assembly votes in. Rendered as trophy-style cards.
+
+**Transaction Hall of Fame and Shame**: curated from site-config transactions[]: {year, headline, parties[], details, verdict: FAME or SHAME, annotator_note}. Rendered as case files with FAME gold seals and SHAME maroon stamps. Empty state invites owners to submit nominations to the Annotator.
+
+**Playoff Brackets**: within each Season Archive year, reconstruct the actual playoff bracket from matchups where playoff is true (semifinals and championship plus consolation), rendered as a broadcast-style bracket graphic. Validate against finish order.
+
+**Global modules**: This Week in EFFL History (rotates matchups matching current NFL week number across all years); Commissioner's Desk announcement bar when announcements[] is non-empty.
+
+## 6B. MEDIA AND DISTRIBUTION FEATURES
+
+**GroupMe link unfurls**: every page gets Open Graph and Twitter card meta tags (og:title, og:description with a real stat, og:image). Generate one branded 1200x630 share card per page in Phase 2 (crest + page title + signature stat on Primetime dark). Test unfurls in GroupMe before launch.
+
+**Launch trailer (Phase 3)**: 30 to 45 second cinematic hype video produced in claude.ai chat: Kling 3.0 Omni shots from the Phase 2 hero art, Fish Audio Don LaFontaine voiceover, script written by the Annotator's Claude. Ends on the site URL. Posted to GroupMe as the launch event.
+
+**The Booth (Weekly Recap engine, in-season workflow, not a build)**: recaps written in a house broadcast persona inspired by classic NFL studio voices. Weighting: heavily Chris Berman flavor (the WHOOP!, "He could... go... all... the... way!", rapid-fire nicknames for owners and players, rumblin' bumblin' stumblin' cadence, bad puns delivered with total confidence) seasoned with John Madden energy (BOOM!, "here's a guy who...", earnest tangents about effort and sandwiches). Workflow: Charlie pastes the week's results into claude.ai, receives the recap, commits it to site-config news/recaps[]; the site renders a Recaps section newest first. The persona is a house voice, never presented as the real broadcasters.
+
+## 7. IMAGERY PLAN (PHASE 2, executed in claude.ai with Higgsfield MCP)
+
+All heroes 21:9 cinematic via soul_location or nano banana pro; badges 1:1 nano banana pro matching the existing EFFL crest (already generated, in /assets). Optimize per Rule 6. Shot list:
+1. The Estate reimagined: the two story stucco house with spiral staircase and pool rendered as an NFL cathedral at dusk, stadium lights, maroon and gold sky (home hero)
+2. Desert stadium tunnel, maroon and gold, smoke and light (champions hero)
+3. Trophy glamour shot composited from real trophy photos (trophy room hero)
+4. Tempe gameday skyline, palms and stadium glow (seasons hero)
+5. Dark locker room wall texture with gold tally engravings (tally wall hero)
+6. Golf course at desert dusk, maroon flag (McCockner hero)
+7. Eight franchise badges: shield motifs per franchise identity (Gov's Office government seal, Herm's Army trident, Coach Balls whistle, Gary's Grinders, Matt Millen, Lop, Professor's Tavern, Go Pats) in crest-matched maroon/gold vector style
+8. Draft war room scene (draft central hero)
+9. Share cards: 1200x630 per page for OG unfurls (template + per-page stat)
+Charlie approves samples before the full set (Phase 2 gate).
+
+## 8. PHASES AND ACCEPTANCE
+
+- **Phase 1 (Claude Code, now)**: full site, all pages, real data wired, placeholder gradient heroes, crest in nav. Acceptance: every page renders on mobile 375px and desktop; all stats verifiably match league-data.js; dash grep clean; Lighthouse performance 90+.
+- **Phase 2 (claude.ai)**: hero and badge generation, approval, optimization, integration.
+- **Phase 3**: McCockner data + trophy photos integrated; minutes/constitution PDFs dropped into /docs; deploy to Pages; link blasted to GroupMe.
+
+## 9. OPEN ITEMS (owner: Charlie)
+
+1. McCockner: years LOCKED (Isle of Palms 2020, Tahoe 2021, Boyne 2022, Streamsong 2023; dark 2015 to 2019 and 2024 to 2026). Still needed: courses played per trip, lodging per trip, Ryder Cup results and winning captains, confirm all 8 attended every trip. Photos: download Google Photos album "McCock Final Album" as zip to the Mac Mini project folder
+2. Trophy photos
+3. 2026 draft date and next league meeting date (for countdowns)
+4. Team name override review: "Coach Check" (2019) and "Team Moran" (2015) contain names; keep or override (default: keep)
+5. Crest: candidate A embedded; candidate B available for swap
+6. 2026 prophecy entries after the draft
+7. Rogue's proof of ink
+8. Transaction nominations: the trades and moves worth immortalizing, with your annotator verdicts
+9. Curated awards: Best Draft Pick Ever, Worst Keeper, and any others
+10. RESOLVED: both McCockner quotes approved for the public site; tattoo photos approved for publication as provided
+11. 2026 draft date for the countdown
+
+## 10. SEED CONTENT: MOTIONS (for site-config.js)
+
+Seed the eight motions of July 21, 2025 exactly as recorded in EFFL_Official_Minutes_7-21-25 (in /docs), including per-owner votes, tallies, rulings, and status. The ceremonial framing of Motion 2025-III must be preserved.
+
+END OF MASTER PROMPT
