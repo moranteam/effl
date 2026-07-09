@@ -238,6 +238,94 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     THE RECORD BOOK
+     ====================================================================== */
+  PAGES.records = function () {
+    var R = LEAGUE.records;
+    $("#records-sub").textContent = "Top tens mined from " + fmtNum(LEAGUE.matchups.length) +
+      " games across " + LEAGUE.seasons.length + " seasons. Every line cites its year and week.";
+
+    /* career table */
+    $("#career-tbl").innerHTML =
+      '<table class="tbl"><thead><tr><th>Owner</th><th class="num-cell">W</th><th class="num-cell">L</th><th class="num-cell">T</th>' +
+      '<th class="num-cell">Pct</th><th class="num-cell">PF</th><th class="num-cell">Titles</th>' +
+      '<th class="num-cell">Tallies</th><th class="num-cell">Playoffs</th><th class="num-cell">Seasons</th><th class="num-cell">Best</th></tr></thead><tbody>' +
+      EFFL.OWNER_ORDER_ALL.map(function (k) {
+        var c = LEAGUE.owners[k].career;
+        return "<tr" + (k === "perkins" ? ' style="opacity:.6"' : "") + ">" +
+          '<td class="owner-cell">' + esc(ownerName(k)) + (k === "perkins" ? ' <span class="dim">(2015 only)</span>' : "") + "</td>" +
+          '<td class="num-cell">' + c.w + '</td><td class="num-cell">' + c.l + '</td><td class="num-cell">' + c.t + "</td>" +
+          '<td class="num-cell" data-val="' + pct(c.w, c.l, c.t) + '">' + pct(c.w, c.l, c.t) + "</td>" +
+          '<td class="num-cell" data-val="' + c.pf + '">' + fmtPts(c.pf) + "</td>" +
+          '<td class="num-cell">' + c.titles + '</td><td class="num-cell">' + c.tallies + "</td>" +
+          '<td class="num-cell">' + c.playoffs + '</td><td class="num-cell">' + c.seasons + "</td>" +
+          '<td class="num-cell" data-val="' + c.best + '">' + EFFL.ordinal(c.best) + "</td></tr>";
+      }).join("") + "</tbody></table>";
+    EFFL.makeSortable($("#career-tbl table"));
+
+    /* record tables */
+    function weekTable(rows, title, sub) {
+      return '<div class="section-head mt-4"><div class="eyebrow left">' + esc(sub) + '</div>' +
+        '<h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">' + esc(title) + "</h2></div>" +
+        '<div class="tbl-scroll"><table class="tbl"><thead><tr><th class="num-cell">#</th><th>Owner</th>' +
+        '<th class="num-cell">Points</th><th>Opponent</th><th class="num-cell">Opp Pts</th><th class="num-cell">Year</th>' +
+        '<th class="num-cell">Week</th><th data-nosort>Stage</th></tr></thead><tbody>' +
+        rows.map(function (r, i) {
+          return "<tr" + (i === 0 ? ' class="hl"' : "") + '><td class="num-cell" data-val="' + (i + 1) + '">' + (i + 1) + "</td>" +
+            '<td class="owner-cell">' + esc(ownerName(r.owner)) + "</td>" +
+            '<td class="num-cell" data-val="' + r.pts + '"><b>' + fmtPts(r.pts) + "</b></td>" +
+            "<td>" + esc(ownerName(r.opp)) + "</td>" +
+            '<td class="num-cell" data-val="' + r.opp_pts + '">' + fmtPts(r.opp_pts) + "</td>" +
+            '<td class="num-cell">' + r.year + '</td><td class="num-cell">' + r.week + "</td>" +
+            "<td class=\"dim\">" + (r.playoff ? "Playoffs" : "Regular") + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
+    function marginTable(rows, title, sub) {
+      return '<div class="section-head mt-4"><div class="eyebrow left">' + esc(sub) + '</div>' +
+        '<h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">' + esc(title) + "</h2></div>" +
+        '<div class="tbl-scroll"><table class="tbl"><thead><tr><th class="num-cell">#</th>' +
+        '<th class="num-cell">Margin</th><th>Winner</th><th>Loser</th><th class="num-cell">Score</th>' +
+        '<th class="num-cell">Year</th><th class="num-cell">Week</th><th data-nosort>Stage</th></tr></thead><tbody>' +
+        rows.map(function (m, i) {
+          var aWin = m.a_pts > m.b_pts;
+          var wKey = aWin ? m.a : m.b, lKey = aWin ? m.b : m.a;
+          var wPts = Math.max(m.a_pts, m.b_pts), lPts = Math.min(m.a_pts, m.b_pts);
+          var margin = Math.round((wPts - lPts) * 100) / 100;
+          return "<tr" + (i === 0 ? ' class="hl"' : "") + '><td class="num-cell" data-val="' + (i + 1) + '">' + (i + 1) + "</td>" +
+            '<td class="num-cell" data-val="' + margin + '"><b>' + fmtPts(margin) + "</b></td>" +
+            '<td class="owner-cell gold">' + esc(ownerName(wKey)) + "</td>" +
+            "<td>" + esc(ownerName(lKey)) + "</td>" +
+            '<td class="num-cell nowrap" data-val="' + wPts + '">' + fmtPts(wPts) + " to " + fmtPts(lPts) + "</td>" +
+            '<td class="num-cell">' + m.year + '</td><td class="num-cell">' + m.week + "</td>" +
+            "<td class=\"dim\">" + (m.playoff ? "Playoffs" : "Regular") + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
+    var host = $("#record-tables");
+    host.innerHTML =
+      weekTable(R.top_weeks, "Highest Weeks Ever", "The Ceiling") +
+      weekTable(R.low_weeks, "Lowest Weeks Ever", "The Floor") +
+      marginTable(R.blowouts, "Biggest Blowouts", "No Mercy") +
+      marginTable(R.nailbiters, "Closest Games", "Decided By Decimal Points") +
+      '<div class="section-head mt-4"><div class="eyebrow left">Volume Shooters</div>' +
+      '<h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">Best Scoring Seasons</h2></div>' +
+      '<div class="tbl-scroll"><table class="tbl"><thead><tr><th class="num-cell">#</th><th>Owner</th><th>Franchise</th>' +
+      '<th class="num-cell">Year</th><th class="num-cell">PF</th><th class="num-cell">Record</th><th class="num-cell">Finish</th></tr></thead><tbody>' +
+      R.best_pf_seasons.map(function (r, i) {
+        return "<tr" + (i === 0 ? ' class="hl"' : "") + '><td class="num-cell" data-val="' + (i + 1) + '">' + (i + 1) + "</td>" +
+          '<td class="owner-cell">' + esc(ownerName(r.owner)) + "</td>" +
+          "<td>" + esc(r.team) + "</td>" +
+          '<td class="num-cell">' + r.year + "</td>" +
+          '<td class="num-cell" data-val="' + r.pf + '"><b>' + fmtPts(r.pf) + "</b></td>" +
+          '<td class="num-cell" data-val="' + r.w + '">' + rec(r) + "</td>" +
+          '<td class="num-cell" data-val="' + r.finish + '">' + EFFL.ordinal(r.finish) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+
+    EFFL.$all("table", host).forEach(EFFL.makeSortable);
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
