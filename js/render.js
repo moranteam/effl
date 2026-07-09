@@ -989,6 +989,111 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     THE McCOCKNER
+     ====================================================================== */
+  PAGES.mccockner = function () {
+    var mc = SITE.mccockner;
+    $("#mc-sub").textContent = mc.origin;
+
+    $("#mc-about").innerHTML = [
+      ["The Format", mc.format],
+      ["The Ethos", mc.ethos],
+      ["The Trophy", mc.trophy + " Photography pending; the hardware will be documented."]
+    ].map(function (c) {
+      return '<div class="panel panel-pad reveal"><div class="eyebrow left" style="margin-bottom:10px">' + c[0] +
+        '</div><p class="muted" style="font-size:.92rem">' + esc(c[1]) + "</p></div>";
+    }).join("");
+
+    /* revival countdown slot */
+    if (mc.revival && mc.revival.planned) {
+      EFFL.countdown($("#mc-revival"), mc.revival.planned, "");
+    } else {
+      $("#mc-revival").innerHTML = '<div class="count-tbd">Awaiting proclamation. The record awaits the Return.</div>';
+    }
+
+    /* trip cards */
+    $("#mc-gap").textContent = mc.gap_note;
+    $("#mc-trips").innerHTML = (mc.trips || []).map(function (t) {
+      return '<div class="banner-card reveal" style="border-top-color:var(--gold-dim)">' +
+        '<div class="wm">' + t.year + "</div>" +
+        '<div class="year">' + t.year + "</div>" +
+        '<div class="champ" style="font-size:1.5rem">' + esc(t.location) + "</div>" +
+        (t.legend ? '<p class="muted mt-1" style="font-size:.88rem">' + esc(t.legend) + "</p>" : "") +
+        '<div class="mt-2">' +
+          '<div class="kv"><span class="k">Courses</span><span class="v">' +
+            (t.courses && t.courses.length ? esc(t.courses.join(", ")) : '<span class="dim">Of record, pending</span>') + "</span></div>" +
+          '<div class="kv"><span class="k">Lodging</span><span class="v">' +
+            (t.lodging ? esc(t.lodging) : '<span class="dim">Pending</span>') + "</span></div>" +
+          '<div class="kv"><span class="k">Result</span><span class="v">' +
+            (t.result ? esc(t.result) : '<span class="dim">Ryder Cup result pending verification</span>') + "</span></div>" +
+          '<div class="kv"><span class="k">Attendees</span><span class="v">' + esc(mc.attendees_note) + "</span></div>" +
+        "</div>" +
+        '<div class="empty-state mt-2" style="padding:14px"><b>Gallery Pending</b>Photos arrive with the Phase 3 archive drop.</div>' +
+      "</div>";
+    }).join("");
+
+    /* dream venues + quotes */
+    $("#mc-extra").innerHTML =
+      '<div class="panel panel-pad reveal"><div class="eyebrow left" style="margin-bottom:10px">Dream Venues</div>' +
+        '<div class="tally-years">' + (mc.dream_venues || []).map(function (v) {
+          return '<span class="year-chip">' + esc(v) + "</span>";
+        }).join("") + "</div></div>" +
+      '<div class="panel panel-pad reveal"><div class="eyebrow left" style="margin-bottom:10px">Words Spoken Into Legend</div>' +
+        (mc.quotes || []).map(function (q) {
+          return '<p class="footer-quote" style="margin-top:10px;text-align:left">“' + esc(q.text) + "”" +
+            (q.attribution ? ' <span class="dim">(' + esc(q.attribution) + ")</span>" : "") + "</p>";
+        }).join("") + "</div>";
+
+    /* map: Leaflet with OSM tiles, the one permitted external dependency.
+       Coordinates are geographic reference points for the recorded trip
+       locations, not league stats. Degrades to a text panel offline. */
+    var GEO = {
+      2020: [32.7868, -79.7948],
+      2021: [38.9399, -119.9772],
+      2022: [45.1636, -84.93],
+      2023: [27.6648, -81.928]
+    };
+    function fallbackMap() {
+      var host = $("#mc-map");
+      host.removeAttribute("role");
+      host.innerHTML = '<div class="empty-state" style="border:0;height:100%;display:flex;flex-direction:column;justify-content:center">' +
+        "<b>Map Offline</b>The theater of operations, in text: " +
+        (mc.trips || []).map(function (t) { return t.year + " " + esc(t.location); }).join(" · ") + "</div>";
+    }
+    function initMap() {
+      try {
+        if (typeof L === "undefined") { fallbackMap(); return; }
+        var pts = (mc.trips || []).filter(function (t) { return GEO[t.year]; });
+        if (!pts.length) { fallbackMap(); return; }
+        var map = L.map("mc-map", { scrollWheelZoom: false });
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 18,
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(map);
+        var bounds = [];
+        pts.forEach(function (t) {
+          var icon = L.divIcon({
+            html: '<div style="background:#FFC627;width:16px;height:16px;transform:rotate(45deg);border:2px solid #0B0E13;box-shadow:0 0 12px rgba(255,198,39,.7)"></div>',
+            className: "", iconSize: [16, 16]
+          });
+          L.marker(GEO[t.year], { icon: icon }).addTo(map)
+            .bindPopup('<b style="color:#0B0E13">' + t.year + " · " + esc(t.location) + "</b>");
+          bounds.push(GEO[t.year]);
+        });
+        map.fitBounds(bounds, { padding: [40, 40] });
+        map.whenReady(function () { setTimeout(function () { map.invalidateSize(); }, 150); });
+      } catch (e) { fallbackMap(); }
+    }
+    /* leaflet.js is deferred and may land after us; poll briefly then degrade */
+    var tries = 0;
+    (function waitForLeaflet() {
+      if (typeof L !== "undefined") { initMap(); return; }
+      if (++tries > 40) { fallbackMap(); return; }
+      setTimeout(waitForLeaflet, 125);
+    })();
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
