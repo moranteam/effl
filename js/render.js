@@ -1094,6 +1094,22 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     THE TROPHY ROOM
+     ====================================================================== */
+  PAGES.trophy = function () {
+    var rows = LEAGUE.seasons.slice().sort(function (a, b) { return a.year - b.year; });
+    $("#engraving").innerHTML = rows.map(function (s) {
+      var t = s.teams.filter(function (x) { return x.owner === s.champion; })[0];
+      return '<div class="bk-team" style="padding:14px 20px">' +
+        '<span><span class="display" style="font-size:1.4rem;color:var(--gold);margin-right:14px">' + s.year + "</span>" +
+        '<b>' + esc(ownerName(s.champion)) + '</b> <span class="dim">' + esc(t.team) + "</span></span>" +
+        '<span class="pts dim">' + rec(t) + "</span></div>";
+    }).join("") +
+    '<div class="bk-team" style="padding:14px 20px"><span><span class="display" style="font-size:1.4rem;color:var(--gold-dim);margin-right:14px">' +
+    (rows[rows.length - 1].year + 1) + '</span><span class="dim">This line intentionally left blank.</span></span></div>';
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
