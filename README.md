@@ -32,7 +32,9 @@ fallback. Fonts load from Google Fonts.
    local only, gitignored)
 2. Rerun `tools/transform_espn.py` to regenerate `data/league-data.js`
 3. Hand edit `data/site-config.js` for news items, motions, prophecies,
-   awards, and announcements
+   awards, and announcements. Add the season's last place finisher to
+   `tallyLedger`: it is the record of actual ink and overrides whatever
+   the transform derives, per the Annotator's ruling of July 2026
 4. Commit both data files. Every page recomputes from the data layer;
    no page markup needs to change
 
