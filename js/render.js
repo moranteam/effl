@@ -68,7 +68,7 @@ var PAGES = {};
       byTitles.map(function (o) {
         var ru = LEAGUE.seasons.filter(function (s) { return s.runner_up === o.k; }).length;
         return "<tr" + (o.titles === top.titles && top.titles > 0 ? ' class="hl"' : "") + ">" +
-          '<td class="owner-cell">' + esc(ownerName(o.k)) + "</td>" +
+          '<td class="owner-cell"><span class="avatar-cell">' + EFFL.avatar(o.k, "sm") + "<span>" + esc(ownerName(o.k)) + "</span></span></td>" +
           '<td class="num-cell" data-val="' + o.titles + '">' + o.titles + "</td>" +
           '<td class="dim">' + (o.years.join(", ") || "Still hunting") + "</td>" +
           '<td class="num-cell" data-val="' + ru + '">' + ru + "</td>" +
@@ -247,7 +247,7 @@ var PAGES = {};
       EFFL.OWNER_ORDER_ALL.map(function (k) {
         var c = LEAGUE.owners[k].career;
         return "<tr" + (k === "perkins" ? ' style="opacity:.6"' : "") + ">" +
-          '<td class="owner-cell">' + esc(ownerName(k)) + (k === "perkins" ? ' <span class="dim">(2015 only)</span>' : "") + "</td>" +
+          '<td class="owner-cell"><span class="avatar-cell">' + EFFL.avatar(k, "sm") + "<span>" + esc(ownerName(k)) + (k === "perkins" ? ' <span class="dim">(2015 only)</span>' : "") + "</span></span></td>" +
           '<td class="num-cell">' + c.w + '</td><td class="num-cell">' + c.l + '</td><td class="num-cell">' + c.t + "</td>" +
           '<td class="num-cell" data-val="' + pct(c.w, c.l, c.t) + '">' + pct(c.w, c.l, c.t) + "</td>" +
           '<td class="num-cell" data-val="' + c.pf + '">' + fmtPts(c.pf) + "</td>" +
@@ -372,7 +372,7 @@ var PAGES = {};
       }).join("");
       return '<div class="tally-card reveal' + (r.count === 0 ? " clean" : "") + '">' +
         '<div class="tally-count">' + r.count + "</div>" +
-        '<div class="tally-name">' + esc(ownerName(r.k)) + "</div>" +
+        '<div class="tally-name"><span class="avatar-cell">' + EFFL.avatar(r.k, "lg") + "<span>" + esc(ownerName(r.k)) + "</span></span></div>" +
         '<div class="tally-strokes">' + strokes + "</div>" +
         '<div class="tally-years">' + chips + "</div>" +
       "</div>";
@@ -465,8 +465,9 @@ var PAGES = {};
       $("#h2h-detail").innerHTML =
         '<div class="panel panel-pad" style="border-top:3px solid var(--maroon)">' +
           '<div class="eyebrow left" style="margin-bottom:10px">The Rivalry File</div>' +
-          '<div class="display" style="font-size:clamp(1.8rem,6vw,3rem)">' +
-            esc(ownerName(a).toUpperCase()) + ' <span class="gold">vs</span> ' + esc(ownerName(b).toUpperCase()) + "</div>" +
+          '<div class="display" style="font-size:clamp(1.8rem,6vw,3rem);display:flex;align-items:center;gap:14px;flex-wrap:wrap">' +
+            EFFL.avatar(a, "lg") + "<span>" + esc(ownerName(a).toUpperCase()) + '</span> <span class="gold">vs</span> ' +
+            EFFL.avatar(b, "lg") + "<span>" + esc(ownerName(b).toUpperCase()) + "</span></div>" +
           '<div class="grid cols-3 mt-2">' +
             '<div class="stat-card"><div class="num">' + rec(r) + '</div><span class="label">' + esc(ownerName(a)) + "&#39;s Record" + '</span>' +
               '<div class="sub">' + (r.w > r.l ? esc(ownerName(a)) + " leads the series" : r.w < r.l ? esc(ownerName(b)) + " leads the series" : "Dead even") + "</div></div>" +
@@ -763,6 +764,7 @@ var PAGES = {};
     var ranked = EFFL.OWNER_ORDER_ALL.slice().sort(function (a, b) { return R.elo_final[b] - R.elo_final[a]; });
     $("#elo-board").innerHTML = ranked.map(function (k, i) {
       return '<div class="stat-card reveal"' + (k === "perkins" ? ' style="opacity:.55"' : "") + ">" +
+        '<div style="margin-bottom:10px">' + EFFL.avatar(k, "lg") + "</div>" +
         '<div class="num"' + (i === 0 ? ' style="color:var(--gold)"' : "") + ">" + fmtNum(R.elo_final[k]) + "</div>" +
         '<span class="label">' + esc(ownerName(k)) + "</span>" +
         '<div class="sub">' + (i === 0 ? "The mathematical GOAT" : "Rank " + (i + 1)) +
@@ -1141,33 +1143,66 @@ var PAGES = {};
   PAGES.home = function () {
     var meta = LEAGUE.meta;
     var latest = EFFL.latestSeason();
+    var av = EFFL.avatar;
+    var R = LEAGUE.records;
 
+    $("#home-est").textContent = "Est. " + meta.est + " · " + meta.origin;
+    $("#home-motto").textContent = meta.motto;
+    $("#home-sub").textContent = "The command center of the Estate: " + LEAGUE.seasons.length +
+      " seasons, " + fmtNum(LEAGUE.matchups.length) + " games, one Tally Statute. Every number on this page is the permanent record.";
 
-    /* stat strip */
-    var totalTallies = EFFL.OWNER_ORDER.reduce(function (n, k) { return n + LEAGUE.owners[k].career.tallies; }, 0);
-    $("#home-stats").innerHTML = [
-      { n: LEAGUE.seasons.length, l: "Seasons", s: EFFL.years()[0] + " to " + latest.year },
-      { n: EFFL.OWNER_ORDER.length, l: "Franchises", s: "One division. The East." },
-      { n: fmtNum(LEAGUE.matchups.length), l: "Games Played", s: "Every box score preserved" },
-      { n: totalTallies, l: "Tallies Owed", s: "Per the Tally Statute" }
-    ].map(function (c) {
-      return '<div class="stat-card reveal"><div class="num">' + c.n + '</div><span class="label">' + c.l + '</span><div class="sub">' + esc(c.s) + "</div></div>";
-    }).join("");
-
-    /* countdown */
-    EFFL.countdown($("#draft-count"), SITE.draftDate2026, "Date to be proclaimed");
-
-    /* champion spotlight + latest standings */
+    /* ---- status tiles ---- */
     var champTeam = latest.teams.filter(function (t) { return t.owner === latest.champion; })[0];
+    var eloKing = EFFL.OWNER_ORDER.slice().sort(function (a, b) { return R.elo_final[b] - R.elo_final[a]; })[0];
+    var pendingK = latest.tally;
+    var pendingCount = LEAGUE.owners[pendingK].career.tallies;
+
+    $("#status-tiles").innerHTML =
+      '<a class="tile reveal" href="draft.html">' +
+        '<div style="min-width:0"><div class="t-label"><span class="live-dot"></span>The ' + (latest.year + 1) + ' Draft</div>' +
+        '<div class="t-big" id="tile-count">…</div>' +
+        '<div class="t-sub" id="tile-count-sub"></div></div></a>' +
+      '<a class="tile reveal" href="champions.html">' + av(latest.champion, "lg") +
+        '<div style="min-width:0"><div class="t-label">Reigning Champion</div>' +
+        '<div class="t-big">' + esc(ownerName(latest.champion)) + "</div>" +
+        '<div class="t-sub">' + esc(champTeam.team) + " · " + rec(champTeam) + "</div></div></a>" +
+      '<a class="tile alert reveal" href="tally.html">' + av(pendingK, "lg") +
+        '<div style="min-width:0"><div class="t-label"><span class="live-dot"></span>Shame Watch</div>' +
+        '<div class="t-big">Proof of Ink: Pending</div>' +
+        '<div class="t-sub">' + esc(ownerName(pendingK)) + " owes tally no. " + pendingCount + "</div></div></a>" +
+      '<a class="tile reveal" href="power.html">' + av(eloKing, "lg") +
+        '<div style="min-width:0"><div class="t-label">Power Index No. 1</div>' +
+        '<div class="t-big">' + esc(ownerName(eloKing)) + "</div>" +
+        '<div class="t-sub">Career Elo ' + fmtNum(R.elo_final[eloKing]) + "</div></div></a>";
+
+    /* compact countdown inside the draft tile */
+    (function tick() {
+      var el = $("#tile-count"), sub = $("#tile-count-sub");
+      if (!el) return;
+      if (!SITE.draftDate2026) { el.textContent = "Date to be proclaimed"; return; }
+      var target = new Date(SITE.draftDate2026);
+      var d = target.getTime() - Date.now();
+      if (d <= 0) { el.textContent = "It is draft day."; sub.textContent = "The board is live."; return; }
+      var days = Math.floor(d / 864e5), hrs = Math.floor(d % 864e5 / 36e5), min = Math.floor(d % 36e5 / 6e4), sec = Math.floor(d % 6e4 / 1e3);
+      el.textContent = (days ? days + "D " : "") + String(hrs).padStart(2, "0") + "H " + String(min).padStart(2, "0") + "M " + String(sec).padStart(2, "0") + "S";
+      sub.textContent = target.toLocaleString("en-US", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+      setTimeout(tick, 1000);
+    })();
+
+    /* ---- champion banner + standings board ---- */
     var runnerTeam = latest.teams.filter(function (t) { return t.owner === latest.runner_up; })[0];
     var standings = latest.teams.slice().sort(function (a, b) { return a.finish - b.finish; });
+    var maxPf = Math.max.apply(null, standings.map(function (t) { return t.pf; }));
     $("#home-feature").innerHTML =
       '<div class="banner-card reveal" style="border-top-width:4px">' +
         '<div class="wm">' + latest.year + "</div>" +
-        '<div class="eyebrow left" style="margin-bottom:8px">Reigning Champion</div>' +
-        '<div class="year">' + latest.year + "</div>" +
-        '<div class="champ">' + esc(ownerName(latest.champion)) + "</div>" +
-        '<div class="team">' + esc(champTeam.team) + "</div>" +
+        '<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">' + av(latest.champion, "xl") +
+          "<div>" +
+          '<div class="eyebrow left" style="margin-bottom:8px">Reigning Champion</div>' +
+          '<div class="year">' + latest.year + "</div>" +
+          '<div class="champ">' + esc(ownerName(latest.champion)) + "</div>" +
+          '<div class="team">' + esc(champTeam.team) + "</div>" +
+          "</div></div>" +
         '<div class="meta">' +
           "<span>Record <b>" + rec(champTeam) + "</b></span>" +
           "<span>PF <b>" + fmtPts(champTeam.pf) + "</b></span>" +
@@ -1178,45 +1213,78 @@ var PAGES = {};
       '<div class="panel panel-pad reveal">' +
         '<div class="eyebrow left" style="margin-bottom:14px">' + latest.year + " Final Standings</div>" +
         '<div class="tbl-scroll"><table class="tbl"><thead><tr>' +
-        "<th>#</th><th>Franchise</th><th>Owner</th><th class=\"num-cell\">W</th><th class=\"num-cell\">L</th><th class=\"num-cell\">PF</th><th class=\"num-cell\">PA</th>" +
+        "<th>#</th><th>Franchise</th><th class=\"num-cell\">W</th><th class=\"num-cell\">L</th><th class=\"num-cell\">PF</th><th class=\"num-cell\">PA</th>" +
         "</tr></thead><tbody>" +
         standings.map(function (t) {
+          var w = Math.round(t.pf / maxPf * 100);
           return "<tr" + (t.finish === 1 ? ' class="hl"' : "") + "><td data-val=\"" + t.finish + "\">" + t.finish + "</td>" +
-            '<td class="owner-cell">' + esc(t.team) + "</td>" +
-            '<td class="dim">' + esc(ownerName(t.owner)) + "</td>" +
+            '<td class="owner-cell"><span class="avatar-cell">' + av(t.owner, "sm") +
+              "<span>" + esc(t.team) + ' <span class="dim">· ' + esc(ownerName(t.owner)) + "</span></span></span></td>" +
             '<td class="num-cell">' + t.w + '</td><td class="num-cell">' + t.l + "</td>" +
-            '<td class="num-cell">' + fmtPts(t.pf) + '</td><td class="num-cell">' + fmtPts(t.pa) + "</td></tr>";
+            '<td class="num-cell" data-val="' + t.pf + '">' + fmtPts(t.pf) +
+              '<div class="bar-track"><div class="bar-fill' + (t.finish === standings.length ? " maroon" : "") + '" style="width:' + w + '%"></div></div></td>' +
+            '<td class="num-cell">' + fmtPts(t.pa) + "</td></tr>";
         }).join("") +
         "</tbody></table></div>" +
         '<div class="mt-2"><a class="btn-ghost" href="seasons.html">Open The Season Archive</a></div>' +
       "</div>";
+    EFFL.makeSortable($("#home-feature table"));
 
-    /* This Week in EFFL History */
+    /* ---- rivalry of the day ---- */
+    var pairs = [];
+    EFFL.OWNER_ORDER.forEach(function (a, i) {
+      EFFL.OWNER_ORDER.forEach(function (b, j) { if (j > i) pairs.push([a, b]); });
+    });
+    var day = Math.floor(Date.now() / 864e5);
+    var pair = pairs[day % pairs.length];
+    var ra = (LEAGUE.h2h[pair[0]] && LEAGUE.h2h[pair[0]][pair[1]]) || { w: 0, l: 0, t: 0 };
+    var games = EFFL.rivalryGames(pair[0], pair[1]).slice().sort(function (x, y) { return x.year - y.year || x.week - y.week; });
+    var lastG = games[games.length - 1];
+    var lastLine = lastG
+      ? "Last meeting: " + esc(ownerName(lastG.a_pts > lastG.b_pts ? lastG.a : lastG.b)) + " won " +
+        fmtPts(Math.max(lastG.a_pts, lastG.b_pts)) + " to " + fmtPts(Math.min(lastG.a_pts, lastG.b_pts)) +
+        " (" + lastG.year + ", wk " + lastG.week + ")"
+      : "No meetings on record.";
+    $("#rivalry-day").innerHTML =
+      '<a class="rivalry reveal" href="h2h.html" style="display:grid">' +
+        '<div class="r-face">' + av(pair[0], "xl") + '<div class="r-name">' + esc(ownerName(pair[0])) + "</div></div>" +
+        '<div class="r-mid">' +
+          '<div class="r-vs">All Time Series · ' + games.length + " Meetings</div>" +
+          '<div class="r-rec">' + rec(ra) + "</div>" +
+          '<div class="t-sub" style="color:var(--muted);font-size:.78rem">' + lastLine + "</div>" +
+        "</div>" +
+        '<div class="r-face">' + av(pair[1], "xl") + '<div class="r-name">' + esc(ownerName(pair[1])) + "</div></div>" +
+      "</a>";
+
+    /* ---- this week in history: broadcast bugs ---- */
     var twih = EFFL.thisWeekInHistory(3);
     $("#twih-sub").textContent = "Pulled from the vault: week " + twih.week + " games across the ages, rotating daily.";
     $("#twih").innerHTML = twih.games.map(function (m) {
       var aWin = m.a_pts > m.b_pts;
-      return '<div class="twih-game reveal">' +
-        '<div class="twih-side a' + (aWin ? " win" : "") + '"><div class="o">' + esc(ownerName(m.a)) + '</div><div class="p">' + fmtPts(m.a_pts) + "</div></div>" +
-        '<div class="twih-mid">' + m.year + "<br>WK " + m.week + (m.playoff ? "<br>Playoffs" : "") + "</div>" +
-        '<div class="twih-side b' + (!aWin ? " win" : "") + '"><div class="o">' + esc(ownerName(m.b)) + '</div><div class="p">' + fmtPts(m.b_pts) + "</div></div>" +
+      return '<div class="bug reveal">' +
+        '<div class="side a' + (aWin ? " win" : "") + '">' + av(m.a) +
+          '<div><div class="who">' + esc(ownerName(m.a)) + '</div><div class="pts">' + fmtPts(m.a_pts) + "</div></div></div>" +
+        '<div class="mid">' + m.year + "<br>WK " + m.week + (m.playoff ? "<br>PLAYOFFS" : "") + "</div>" +
+        '<div class="side b' + (!aWin ? " win" : "") + '">' + av(m.b) +
+          '<div><div class="who">' + esc(ownerName(m.b)) + '</div><div class="pts">' + fmtPts(m.b_pts) + "</div></div></div>" +
       "</div>";
     }).join("") || '<div class="empty-state">The vault is silent this week.</div>';
 
-    /* section nav cards */
+    /* ---- photo nav cards ---- */
+    var totalTallies = EFFL.OWNER_ORDER.reduce(function (n, k) { return n + LEAGUE.owners[k].career.tallies; }, 0);
     var cards = [
-      ["champions.html", "Hall of Champions", LEAGUE.seasons.length + " banners raised", "tunnel"],
-      ["seasons.html", "Season Archive", EFFL.years()[0] + " to " + latest.year + ", every box score", "skyline"],
-      ["records.html", "The Record Book", "Top tens across " + fmtNum(LEAGUE.matchups.length) + " games", "vault"],
-      ["tally.html", "The Tally Wall", totalTallies + " marks of permanent shame", "wall"],
-      ["h2h.html", "Head To Head", "Every rivalry, quantified", "war"],
-      ["franchises.html", "Franchises", EFFL.OWNER_ORDER.length + " franchises, one registry", "estate"],
-      ["power.html", "The Power Index", "Elo, all play, and the Luck Index", "vault"],
-      ["draft.html", "Draft Central", "The Keeper Codex and the countdown", "war"],
-      ["mccockner.html", "The McCockiner Cup", "The golf record of the Assembly", "dusk"]
+      ["champions.html", "Hall of Champions", LEAGUE.seasons.length + " banners raised", "assets/mccockiner/2023/11.jpg", "center 30%"],
+      ["seasons.html", "Season Archive", EFFL.years()[0] + " to " + latest.year + ", every box score", "assets/mccockiner/2021/10.jpg", "center 40%"],
+      ["records.html", "The Record Book", "Top tens across " + fmtNum(LEAGUE.matchups.length) + " games", "assets/mccockiner/2022/05.jpg", "center 55%"],
+      ["tally.html", "The Tally Wall", totalTallies + " marks of permanent shame", "assets/tally/01.jpg", "center 25%"],
+      ["h2h.html", "Head To Head", "Every rivalry, quantified", "assets/mccockiner/2020/01.jpg", "center 35%"],
+      ["franchises.html", "Franchises", EFFL.OWNER_ORDER.length + " franchises, one registry", "assets/mccockiner/2022/01.jpg", "center 30%"],
+      ["power.html", "The Power Index", "Elo, all play, and the Luck Index", "assets/mccockiner/2021/02.jpg", "center 45%"],
+      ["draft.html", "Draft Central", "The Keeper Codex and the countdown", "assets/mccockiner/2023/13.jpg", "center 45%"],
+      ["mccockner.html", "The McCockiner Cup", "The golf record of the Assembly", "assets/mccockiner/2023/09.jpg", "center 60%"]
     ];
     $("#home-cards").innerHTML = cards.map(function (c) {
-      return '<a class="nav-card hero reveal" data-hero="' + c[3] + '" href="' + c[0] + '">' +
+      return '<a class="nav-card photo reveal" href="' + c[0] + '" style="background-image:url(\'' + c[3] + '\');background-position:' + c[4] + '">' +
         '<span class="go">GO ➔</span>' +
         '<span class="t">' + esc(c[1]) + '</span><span class="d">' + esc(c[2]) + "</span></a>";
     }).join("");
