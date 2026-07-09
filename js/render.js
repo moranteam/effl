@@ -553,13 +553,18 @@ var PAGES = {};
       var initials = o.display.replace(/^The /, "").slice(0, 2).toUpperCase();
       var offices = (o.offices || []).join(", ");
       var photo = (SITE.franchisePhotos || {})[k];
+      /* every name the room has ever used: transform aliases + curated nicknames */
+      var names = (o.aliases || []).concat((SITE.nicknames || {})[k] || [])
+        .filter(function (n, i, arr) { return n !== o.display && arr.indexOf(n) === i; });
       return '<div class="fr-card reveal">' +
         (photo ? '<div class="fr-photo"><img loading="lazy" src="' + esc(photo.src) +
           '" alt="' + esc(photo.alt || o.display) + '" style="object-position:' + esc(photo.pos || "50% 25%") + '"></div>' : "") +
         '<div class="fr-head">' +
           '<div class="fr-badge" title="Franchise badge arrives in Phase 2">' + esc(initials) + "</div>" +
           '<div><div class="fr-name">' + esc(o.display) + "</div>" +
-          '<div class="fr-team">' + esc(o.franchise_2025 || "") + (offices ? " · " + esc(offices) : "") + "</div></div>" +
+          '<div class="fr-team">' + esc(o.franchise_2025 || "") + (offices ? " · " + esc(offices) : "") + "</div>" +
+          (names.length ? '<div class="fr-team" style="margin-top:2px">Answers to: <span class="gold">' + esc(names.join(", ")) + "</span></div>" : "") +
+          "</div>" +
         "</div>" +
         '<div class="fr-line">' +
           "<span>Career <b>" + rec(c) + "</b></span>" +
@@ -955,7 +960,10 @@ var PAGES = {};
       $("#prophecy-ledger").innerHTML = '<div class="empty-state"><b>The Ledger Is Blank</b>The tradition begins with the next draft.</div>';
       return;
     }
-    $("#prophecy-ledger").innerHTML = seasons.map(function (y) {
+    var note = SITE.propheciesNote
+      ? '<div class="doc-note" style="margin-bottom:26px"><b>Notice From The Assembly.</b> ' + esc(SITE.propheciesNote) + "</div>"
+      : "";
+    $("#prophecy-ledger").innerHTML = note + seasons.map(function (y) {
       var entries = ledger[y] || [];
       var body;
       if (!entries.length) {

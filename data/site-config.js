@@ -3,8 +3,27 @@
 // TODO markers indicate content pending from the Annotator.
 
 const SITE = {
-  draftDate2026: null, // ISO string when announced; null renders "Date to be proclaimed"
+  draftDate2026: "2026-07-09T21:00:00-04:00", // proclaimed by the Annotator: July 9, 2026, 9 PM Eastern
   nextMeetingDate: null,
+
+  // After the close of the 2026 draft, per the Annotator.
+  propheciesNote: "By order of the Assembly: Lop (Bill) will be reaching out to every owner " +
+    "individually for comments and predictions after the close of the 2026 draft. " +
+    "Prophecies are sealed upon entry and judged without mercy at the finale.",
+
+  // Nicknames of record beyond the machine generated aliases, cleared for
+  // publication by the Annotator, July 2026. Sourced from the founding
+  // memos, itineraries, draft boards, and power rankings.
+  nicknames: {
+    lop: ["Bill", "Lord", "Blaze"],
+    chen: ["Commish"],
+    herm: ["Coach Ski"],
+    gov: [],
+    professor: ["Go Dare", "Smith U"],
+    rogue: ["McCray", "Roguey"],
+    charlie: ["The Broker", "VP"],
+    gary: []
+  },
 
   // THE TALLY LEDGER OF RECORD. Ruled by the Annotator, July 2026: the tally
   // goes to the worst regular season finish, not the consolation ladder.
@@ -25,6 +44,7 @@ const SITE = {
   },
 
   news: [
+    "THE 2026 DRAFT CONVENES JULY 9 AT 9 PM EASTERN. THE CLOCK IS RUNNING",
     "EST. 2015 AT THE ESTATE, TEMPE, ARIZONA",
     "CHEN: FOUR TITLES, ZERO TALLIES. THE DYNASTY IS REAL",
     "GOV: 2025 CHAMPION. TALLY IN 2024. DEAD LAST TO THE BANNER IN ONE YEAR",
@@ -98,7 +118,8 @@ const SITE = {
     // Per the Annotator (July 2026): teams redraft every year, so no running
     // results record is displayed. A trip's result renders only if set here.
     trips: [
-      { year: 2020, location: "Isle of Palms, South Carolina", courses: [], lodging: null,
+      { year: 2020, location: "Isle of Palms, South Carolina",
+        courses: ["Wild Dunes", "Charleston National Golf Club"], lodging: null,
         result: null, legend: "The inaugural McCockiner Cup, where Charlie achieved league-wide fame for a historic case of swamp ass in heat he had never before experienced.",
         gallery: ["assets/mccockiner/2020/01.jpg", "assets/mccockiner/2020/02.jpg", "assets/mccockiner/2020/03.jpg", "assets/mccockiner/2020/04.jpg"] },
       { year: 2021, location: "Lake Tahoe (Incline Village, Nevada)",
