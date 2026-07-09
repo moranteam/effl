@@ -758,6 +758,117 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     THE POWER INDEX
+     ====================================================================== */
+  PAGES.power = function () {
+    var R = LEAGUE.records;
+    $("#power-sub").textContent = "Career Elo across every game since " + EFFL.years()[0] +
+      ", all play standings, and the Luck Index. Settle the group chat with math.";
+
+    /* Elo leaderboard cards */
+    var ranked = EFFL.OWNER_ORDER_ALL.slice().sort(function (a, b) { return R.elo_final[b] - R.elo_final[a]; });
+    $("#elo-board").innerHTML = ranked.map(function (k, i) {
+      return '<div class="stat-card reveal"' + (k === "perkins" ? ' style="opacity:.55"' : "") + ">" +
+        '<div class="num"' + (i === 0 ? ' style="color:var(--gold)"' : "") + ">" + fmtNum(R.elo_final[k]) + "</div>" +
+        '<span class="label">' + esc(ownerName(k)) + "</span>" +
+        '<div class="sub">' + (i === 0 ? "The mathematical GOAT" : "Rank " + (i + 1)) +
+        (k === "perkins" ? " · retired undefeated by time" : "") + "</div></div>";
+    }).join("");
+
+    /* Elo timeline chart */
+    var series = EFFL.eloSeries();
+    var visible = {};
+    EFFL.OWNER_ORDER.forEach(function (k) { visible[k] = true; });
+    visible.perkins = false;
+
+    var W = 760, H = 380, padL = 40, padR = 12, padT = 14, padB = 26;
+    var allR = [];
+    EFFL.OWNER_ORDER_ALL.forEach(function (k) { series[k].forEach(function (p) { allR.push(p.r); }); });
+    var rMin = Math.min.apply(null, allR) - 15, rMax = Math.max.apply(null, allR) + 15;
+    var iMax = LEAGUE.records.elo_timeline.length - 1;
+    function X(i) { return padL + i / iMax * (W - padL - padR); }
+    function Y(r) { return padT + (rMax - r) / (rMax - rMin) * (H - padT - padB); }
+
+    /* first game index per year for gridlines */
+    var yearStart = {};
+    LEAGUE.records.elo_timeline.forEach(function (e, i) {
+      if (yearStart[e.y] === undefined) yearStart[e.y] = i;
+    });
+
+    function drawChart() {
+      var grid = "";
+      Object.keys(yearStart).forEach(function (y) {
+        var x = X(yearStart[y]);
+        grid += '<line class="grid-line" x1="' + x.toFixed(1) + '" y1="' + padT + '" x2="' + x.toFixed(1) + '" y2="' + (H - padB) + '"></line>';
+        grid += '<text class="year-label" x="' + (x + 3).toFixed(1) + '" y="' + (H - 8) + '">' + String(y).slice(2) + "</text>";
+      });
+      [1400, 1500, 1600].forEach(function (r) {
+        if (r < rMin || r > rMax) return;
+        grid += '<line class="grid-line" x1="' + padL + '" y1="' + Y(r).toFixed(1) + '" x2="' + (W - padR) + '" y2="' + Y(r).toFixed(1) + '"></line>';
+        grid += '<text class="rating-label" x="2" y="' + (Y(r) + 3).toFixed(1) + '">' + r + "</text>";
+      });
+      var lines = EFFL.OWNER_ORDER_ALL.filter(function (k) { return visible[k]; }).map(function (k) {
+        var pts = series[k].map(function (p) { return X(p.i).toFixed(1) + "," + Y(p.r).toFixed(1); }).join(" ");
+        return '<polyline points="' + pts + '" style="stroke:' + EFFL.CHART_COLORS[k] + '"><title>' + esc(ownerName(k)) + "</title></polyline>";
+      }).join("");
+      $("#elo-chart-host").innerHTML =
+        '<svg class="elo-chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Elo rating over time per owner">' +
+        grid + lines + "</svg>";
+    }
+
+    function drawLegend() {
+      $("#elo-legend").innerHTML = EFFL.OWNER_ORDER_ALL.map(function (k) {
+        return '<button type="button" class="legend-btn' + (visible[k] ? "" : " off") + '" data-k="' + k + '">' +
+          '<span class="sw" style="background:' + EFFL.CHART_COLORS[k] + '"></span>' + esc(ownerName(k)) + "</button>";
+      }).join("");
+      EFFL.$all("#elo-legend .legend-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          visible[b.dataset.k] = !visible[b.dataset.k];
+          drawLegend(); drawChart();
+        });
+      });
+    }
+    drawLegend();
+    drawChart();
+
+    /* all play standings */
+    var ap = R.allplay_luck;
+    var apRanked = EFFL.OWNER_ORDER_ALL.slice().sort(function (a, b) {
+      function p(k) { return ap[k].allplay_w / (ap[k].allplay_w + ap[k].allplay_l); }
+      return p(b) - p(a);
+    });
+    $("#allplay-tbl").innerHTML =
+      '<table class="tbl"><thead><tr><th class="num-cell">#</th><th>Owner</th>' +
+      '<th class="num-cell">All Play W</th><th class="num-cell">All Play L</th><th class="num-cell">Pct</th>' +
+      '<th class="num-cell">Expected W</th><th class="num-cell">Actual W</th></tr></thead><tbody>' +
+      apRanked.map(function (k, i) {
+        var a = ap[k];
+        return "<tr" + (k === "perkins" ? ' style="opacity:.55"' : (i === 0 ? ' class="hl"' : "")) + ">" +
+          '<td class="num-cell" data-val="' + (i + 1) + '">' + (i + 1) + "</td>" +
+          '<td class="owner-cell">' + esc(ownerName(k)) + "</td>" +
+          '<td class="num-cell">' + fmtNum(a.allplay_w) + '</td><td class="num-cell">' + fmtNum(a.allplay_l) + "</td>" +
+          '<td class="num-cell" data-val="' + (a.allplay_w / (a.allplay_w + a.allplay_l)).toFixed(3) + '">' +
+            pct(a.allplay_w, a.allplay_l, 0) + "</td>" +
+          '<td class="num-cell">' + a.expected_w.toFixed(1) + '</td><td class="num-cell">' + a.actual_w + "</td></tr>";
+      }).join("") + "</tbody></table>";
+    EFFL.makeSortable($("#allplay-tbl table"));
+
+    /* Luck Index bars */
+    var luckRanked = EFFL.OWNER_ORDER.slice().sort(function (a, b) { return ap[b].luck - ap[a].luck; });
+    var maxLuck = Math.max.apply(null, luckRanked.map(function (k) { return Math.abs(ap[k].luck); }));
+    $("#luck-chart").innerHTML = luckRanked.map(function (k) {
+      var v = ap[k].luck;
+      var wPct = Math.abs(v) / maxLuck * 48;
+      return '<div class="luck-row reveal">' +
+        '<div class="luck-name">' + esc(ownerName(k)) + "</div>" +
+        '<div class="luck-track"><div class="luck-bar ' + (v >= 0 ? "pos" : "neg") + '" style="width:' + wPct.toFixed(1) + '%"></div></div>' +
+        '<div class="luck-val ' + (v >= 0 ? "pos" : "neg") + '">' + (v >= 0 ? "+" : "") + v.toFixed(1) + "</div>" +
+      "</div>";
+    }).join("") +
+    '<div class="fr-line mt-2"><span>Gold <b>lucky: won more than deserved</b></span><span>Maroon <b>robbed: won fewer than deserved</b></span></div>';
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
