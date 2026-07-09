@@ -590,6 +590,69 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     LEGISLATION TRACKER
+     ====================================================================== */
+  PAGES.legislation = function () {
+    var motions = SITE.motions || [];
+    var sessions = {};
+    motions.forEach(function (m) { sessions[m.id.split("-")[0]] = 1; });
+    $("#leg-sub").textContent = motions.length + " motions on the permanent record across " +
+      Object.keys(sessions).length + " session" + (Object.keys(sessions).length === 1 ? "" : "s") +
+      " of the Assembly. Vote tables as recorded by the Office of the Annotator.";
+
+    var counts = { RATIFIED: 0, FAILED: 0, TABLED: 0, UNRESOLVED: 0 };
+    motions.forEach(function (m) { counts[m.status] = (counts[m.status] || 0) + 1; });
+    $("#leg-stats").innerHTML = [
+      ["RATIFIED", "Ratified", "Now league law"],
+      ["FAILED", "Failed", "The Assembly said no"],
+      ["TABLED", "Tabled", "Postponed, as is tradition"],
+      ["UNRESOLVED", "Unresolved", "History will note the silence"]
+    ].map(function (s) {
+      return '<div class="stat-card reveal"><div class="num">' + (counts[s[0]] || 0) +
+        '</div><span class="label">' + s[1] + '</span><div class="sub">' + s[2] + "</div></div>";
+    }).join("");
+
+    function motionCard(m) {
+      var voteKeys = Object.keys(m.votes || {});
+      var tallyCounts = {};
+      voteKeys.forEach(function (k) {
+        var v = m.votes[k];
+        tallyCounts[v] = (tallyCounts[v] || 0) + 1;
+      });
+      var tallyLine = Object.keys(tallyCounts).map(function (v) {
+        return tallyCounts[v] + " " + esc(v);
+      }).join(", ");
+      var votes = voteKeys.length ?
+        '<div class="vote-grid">' + EFFL.OWNER_ORDER.map(function (k) {
+          var v = m.votes[k];
+          return '<div class="vote-cell"><span class="who">' + esc(ownerName(k)) + '</span><span class="what' +
+            (v === undefined ? " dim" : "") + '">' + (v === undefined ? "Not recorded" : esc(v)) + "</span></div>";
+        }).join("") + "</div>" +
+        '<div class="fr-line" style="margin-top:10px"><span>Tally <b>' + tallyLine + "</b></span></div>"
+        : '<div class="empty-state mt-2" style="padding:16px">No votes were recorded, and none were expected.</div>';
+      return '<div class="panel panel-pad motion-card reveal" data-search="' +
+        esc((m.id + " " + m.title + " " + m.summary + " " + m.status).toLowerCase()) + '">' +
+        '<div class="motion-head">' +
+          '<span class="motion-id">' + esc(m.id) + "</span>" +
+          '<span class="motion-title">' + esc(m.title) + "</span>" +
+          '<span class="chip ' + esc(m.status.toLowerCase()) + '">' + esc(m.status) + "</span>" +
+        "</div>" +
+        '<p class="muted mt-1" style="font-size:.92rem">' + esc(m.summary) + "</p>" + votes +
+      "</div>";
+    }
+
+    $("#motions").innerHTML = motions.map(motionCard).join("") ||
+      '<div class="empty-state"><b>No Motions Yet</b>The Assembly has not convened.</div>';
+
+    $("#leg-search").addEventListener("input", function () {
+      var q = this.value.trim().toLowerCase();
+      EFFL.$all("#motions .motion-card").forEach(function (card) {
+        card.style.display = !q || card.dataset.search.indexOf(q) >= 0 ? "" : "none";
+      });
+    });
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
