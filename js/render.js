@@ -684,6 +684,80 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     DRAFT CENTRAL
+     ====================================================================== */
+  PAGES.draft = function () {
+    var nextYear = EFFL.latestSeason().year + 1;
+    $("#draft-sub").textContent = "Snake format, 60 seconds a pick, " + LEAGUE.meta.platform +
+      " platform of record. The " + nextYear + " board awaits.";
+    EFFL.countdown($("#draft-countdown"), SITE.draftDate2026, "Date to be proclaimed");
+
+    /* Codex summary cards */
+    $("#codex-cards").innerHTML = [
+      ["RB / WR / TE", "Eligibility", "Only running backs, wide receivers, and tight ends may be kept. Everyone else re-enters the pool."],
+      ["RD 3+", "Round Restriction", "No player drafted in the 1st or 2nd round may be kept. Eligibility begins in the 3rd."],
+      ["1", "Per Franchise", "Each franchise keeps a maximum of one player per season."],
+      ["+1", "Escalation", "The cost is the round originally drafted, escalating one round per consecutive year kept."],
+      ["6TH", "Free Agents", "A player acquired as a free agent may be kept at the cost of a 6th round pick."],
+      ["3 YRS", "Term Limit", "No player may be kept more than 3 consecutive years. All dynasties end."]
+    ].map(function (c) {
+      return '<div class="stat-card reveal"><div class="num" style="font-size:2.2rem">' + c[0] +
+        '</div><span class="label">' + c[1] + '</span><div class="sub">' + c[2] + "</div></div>";
+    }).join("");
+
+    /* calculator */
+    var saved = EFFL.store.get("keeper_calc", { round: "8", years: "1" });
+    var roundSel = $("#calc-round"), yearSel = $("#calc-years");
+    var opts = "";
+    for (var r = 3; r <= 16; r++) opts += '<option value="' + r + '">Round ' + r + "</option>";
+    opts += '<option value="FA">Free Agent Pickup</option>';
+    roundSel.innerHTML = opts;
+    yearSel.innerHTML = [1, 2, 3].map(function (y) {
+      return '<option value="' + y + '">Year ' + y + (y === 3 ? " (final year permitted)" : "") + "</option>";
+    }).join("");
+    roundSel.value = saved.round;
+    yearSel.value = saved.years;
+    if (roundSel.selectedIndex < 0) roundSel.value = "8";
+    if (yearSel.selectedIndex < 0) yearSel.value = "1";
+
+    function calc() {
+      var rv = roundSel.value, yv = parseInt(yearSel.value, 10);
+      EFFL.store.set("keeper_calc", { round: rv, years: String(yv) });
+      var base = rv === "FA" ? 6 : parseInt(rv, 10);
+      var owed = Math.max(1, base - (yv - 1));
+      var basis = rv === "FA"
+        ? "Free agent keepers cost a 6th round pick (Section 6)"
+        : "He was drafted in round " + base + ", so year one costs that round (Section 5)";
+      var esc5 = yv > 1 ? ", escalating one round per consecutive year kept" : "";
+      $("#calc-out").innerHTML =
+        '<div class="calc-result">' +
+          '<div class="label" style="display:block;margin-bottom:8px">You Owe Your</div>' +
+          '<div class="big">' + EFFL.ordinal(owed).toUpperCase() + " ROUND PICK</div>" +
+          '<p class="expl">' + basis + esc5 + ". " +
+          (yv === 3 ? "This is his final permitted year: the Codex allows no fourth (Section 7)." : "") + "</p>" +
+        "</div>";
+    }
+    roundSel.addEventListener("change", calc);
+    yearSel.addEventListener("change", calc);
+    calc();
+
+    /* keeper history from the data layer */
+    var rows = [];
+    LEAGUE.seasons.forEach(function (s) {
+      (s.keepers || []).forEach(function (k) { rows.push({ year: s.year, k: k }); });
+    });
+    $("#keeper-history").innerHTML = rows.length
+      ? '<div class="tbl-scroll"><table class="tbl"><thead><tr><th class="num-cell">Year</th><th>Player</th><th>Owner</th><th class="num-cell">Round Paid</th></tr></thead><tbody>' +
+        rows.map(function (r) {
+          return '<tr><td class="num-cell">' + r.year + '</td><td class="owner-cell">' + esc(r.k.player || "") +
+            "</td><td>" + esc(ownerName(r.k.owner || "")) + '</td><td class="num-cell">' + esc(String(r.k.rd || "")) + "</td></tr>";
+        }).join("") + "</tbody></table></div>"
+      : '<div class="empty-state"><b>No Keepers Declared Yet</b>The Codex took effect with the ' +
+        LEAGUE.seasons.filter(function (s) { return s.year >= 2025; })[0].year +
+        " draft and no franchise has yet paid the price. The first entry in this ledger will be historic.</div>";
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {

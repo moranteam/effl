@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draft Central · EFFL</title>
+<meta name="description" content="EFFL Draft Central: the countdown, the Keeper Codex, and the interactive keeper cost calculator.">
+<meta property="og:site_name" content="The Estate Fantasy Football League">
+<meta property="og:title" content="Draft Central · EFFL">
+<meta property="og:description" content="The war room. Snake format, 60 seconds a pick, keepers governed by the Codex.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://moranteam.github.io/effl/draft.html">
+<meta property="og:image" content="https://moranteam.github.io/effl/assets/EFFL_Crest.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0B0E13">
+<link rel="icon" type="image/png" href="assets/EFFL_Crest.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="data/league-data.js" defer></script>
+<script src="data/site-config.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/render.js" defer></script>
+</head>
+<body data-page="draft">
+<div id="ticker" class="ticker" aria-hidden="true"></div>
+<header id="site-nav" class="site-nav"></header>
+<div id="commish-bar"></div>
+<main>
+
+  <section class="hero" data-hero="war">
+    <div class="hero-inner" style="text-align:center">
+      <div class="hero-kicker">The War Room</div>
+      <h1 class="hero-title">Draft Central</h1>
+      <p class="hero-sub" style="margin:0 auto" id="draft-sub"></p>
+      <div class="mt-3" id="draft-countdown"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head center">
+        <div class="eyebrow center">Article IX Of The Constitution</div>
+        <h2 class="section-title">The Keeper Codex</h2>
+        <p class="section-sub">Ratified 7 to 1 under Motion 2025-VIII. The complete law is in
+        <a class="gold" href="constitution.html#article-ix">the Constitution</a>; the operative rules are these.</p>
+      </div>
+      <div class="grid cols-3" id="codex-cards"></div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="ornament" aria-hidden="true"><i></i><i></i><i></i></div></div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head center">
+        <div class="eyebrow center">Section 5, Applied</div>
+        <h2 class="section-title">Keeper Cost Calculator</h2>
+        <p class="section-sub">What does keeping him actually cost? Round drafted plus years kept, out
+        comes the pick you owe. Inputs persist on this device.</p>
+      </div>
+      <div class="calc panel panel-pad">
+        <div class="row">
+          <label for="calc-round">Round Originally Drafted</label>
+          <select id="calc-round"></select>
+        </div>
+        <div class="row">
+          <label for="calc-years">Consecutive Years Kept (This Will Be Year...)</label>
+          <select id="calc-years"></select>
+        </div>
+        <div id="calc-out" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow left">The Ledger</div>
+        <h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">Keeper History</h2>
+      </div>
+      <div id="keeper-history"></div>
+    </div>
+  </section>
+
+</main>
+<footer id="site-footer"></footer>
+<noscript><div style="padding:40px;text-align:center">The EFFL record renders from its data layer and requires JavaScript.</div></noscript>
+</body>
+</html>
