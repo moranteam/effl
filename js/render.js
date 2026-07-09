@@ -951,6 +951,44 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     PROPHECIES OF THE ASSEMBLY
+     ====================================================================== */
+  PAGES.prophecies = function () {
+    var ledger = SITE.prophecies || {};
+    var seasons = Object.keys(ledger).map(Number).sort(function (a, b) { return b - a; });
+    if (!seasons.length) {
+      $("#prophecy-ledger").innerHTML = '<div class="empty-state"><b>The Ledger Is Blank</b>The tradition begins with the next draft.</div>';
+      return;
+    }
+    $("#prophecy-ledger").innerHTML = seasons.map(function (y) {
+      var entries = ledger[y] || [];
+      var body;
+      if (!entries.length) {
+        body = EFFL.OWNER_ORDER.map(function (k) {
+          return '<div class="prophecy-slot reveal">' +
+            '<div class="prophecy-owner">' + esc(ownerName(k)) + "</div>" +
+            '<div class="prophecy-text">To be entered after the draft.</div>' +
+            '<span class="chip tabled">SEALED</span>' +
+          "</div>";
+        }).join("");
+      } else {
+        body = entries.map(function (p) {
+          var verdict = p.verdict === "RIGHT" ? '<span class="chip right">RIGHT</span>' :
+                        p.verdict === "WRONG" ? '<span class="chip wrong">WRONG</span>' :
+                        '<span class="chip tabled">SEALED</span>';
+          return '<div class="prophecy-slot filled reveal">' +
+            '<div class="prophecy-owner">' + esc(ownerName(p.owner)) + "</div>" +
+            '<div class="prophecy-text">“' + esc(p.text) + "”</div>" + verdict +
+          "</div>";
+        }).join("");
+      }
+      return '<div class="section-head"><div class="eyebrow left">The Ledger Of ' + y + "</div>" +
+        '<h2 class="section-title" style="font-size:clamp(2rem,5vw,3rem)">' + y + " Prophecies</h2></div>" +
+        '<div style="display:grid;gap:10px;margin-bottom:44px">' + body + "</div>";
+    }).join("");
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
