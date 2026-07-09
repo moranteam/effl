@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Tally Wall · EFFL</title>
+<meta name="description" content="The EFFL Tally Wall: permanent tattooed tally marks for every last place finish, per Article X of the Constitution.">
+<meta property="og:site_name" content="The Estate Fantasy Football League">
+<meta property="og:title" content="The Tally Wall · EFFL">
+<meta property="og:description" content="Last place is permanent. One inch minimum. The buttock is the traditional site. The record awaits proof of ink.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://moranteam.github.io/effl/tally.html">
+<meta property="og:image" content="https://moranteam.github.io/effl/assets/EFFL_Crest.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0B0E13">
+<link rel="icon" type="image/png" href="assets/EFFL_Crest.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="data/league-data.js" defer></script>
+<script src="data/site-config.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/render.js" defer></script>
+</head>
+<body data-page="tally">
+<div id="ticker" class="ticker" aria-hidden="true"></div>
+<header id="site-nav" class="site-nav"></header>
+<div id="commish-bar"></div>
+<main>
+
+  <section class="hero" data-hero="wall">
+    <div class="hero-inner">
+      <div class="hero-kicker">Victoria Aut Tattoo</div>
+      <h1 class="hero-title">The Tally Wall</h1>
+      <p class="hero-sub" id="tally-sub"></p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:34px">
+    <div class="wrap">
+      <div class="grid cols-4" id="tally-stats"></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="grid cols-2" id="tally-wall"></div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="ornament" aria-hidden="true"><i></i><i></i><i></i></div></div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="panel panel-pad doc-note" style="font-style:normal;max-width:820px;margin:0 auto">
+        <b>THE TALLY STATUTE · ARTICLE X</b>
+        <p class="mt-1">The owner whose franchise finishes in last place at the conclusion of a season
+        shall receive a permanent tattoo of a tally mark, measuring no less than one inch. Placement is at
+        the discretion of the finisher, with the buttock recognized as the traditional site. Tallies are
+        cumulative over an owner's career and constitute the league's permanent standings of shame.
+        Compliance is a matter of honor and public record.</p>
+        <p class="mt-1"><a class="btn-ghost" href="constitution.html#article-x">Read Article X In The Constitution</a></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+<footer id="site-footer"></footer>
+<noscript><div style="padding:40px;text-align:center">The EFFL record renders from its data layer and requires JavaScript.</div></noscript>
+</body>
+</html>

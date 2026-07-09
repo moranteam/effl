@@ -326,6 +326,69 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     THE TALLY WALL
+     ====================================================================== */
+  PAGES.tally = function () {
+    var latest = EFFL.latestSeason();
+    var pendingOwner = latest.tally; /* newest obligation, pending proof of ink */
+
+    var rows = EFFL.OWNER_ORDER.map(function (k) {
+      var yrs = LEAGUE.seasons.filter(function (s) { return s.tally === k; })
+        .map(function (s) { return s.year; }).sort();
+      return { k: k, count: LEAGUE.owners[k].career.tallies, years: yrs };
+    }).sort(function (a, b) { return b.count - a.count || a.k.localeCompare(b.k); });
+
+    var total = rows.reduce(function (n, r) { return n + r.count; }, 0);
+    var clean = rows.filter(function (r) { return r.count === 0; });
+
+    $("#tally-sub").textContent = "The crown jewel of shame. " + total +
+      " tally marks owed across " + LEAGUE.seasons.length + " seasons, one per last place finish, " +
+      "permanent by constitutional mandate.";
+
+    $("#tally-stats").innerHTML = [
+      { n: total, l: "Tallies Owed", s: "All time, all owners" },
+      { n: rows[0].count, l: "Most By One Owner", s: rows.filter(function (r) { return r.count === rows[0].count; }).map(function (r) { return ownerName(r.k); }).join(" and ") },
+      { n: clean.length, l: "Clean Owners", s: clean.map(function (r) { return ownerName(r.k); }).join(", ") || "Nobody" },
+      { n: 1, l: "Pending Proof", s: ownerName(pendingOwner) + ", " + latest.year }
+    ].map(function (c) {
+      return '<div class="stat-card reveal"><div class="num">' + c.n + '</div><span class="label">' + c.l + '</span><div class="sub">' + esc(c.s) + "</div></div>";
+    }).join("");
+
+    $("#tally-wall").innerHTML = rows.map(function (r) {
+      var strokes = "";
+      if (r.count === 0) {
+        strokes = '<div class="tally-zero">UNMARKED · THE SKIN IS CLEAN</div>';
+      } else {
+        var groups = [];
+        var pendingIdx = r.years.indexOf(latest.year) >= 0 && r.k === pendingOwner ? r.count - 1 : -1;
+        var idx = 0;
+        while (idx < r.count) {
+          var g = Math.min(5, r.count - idx);
+          var group = '<div class="tally-group">';
+          for (var j = 0; j < Math.min(g, 4); j++) {
+            group += '<div class="tally-stroke' + ((idx + j) === pendingIdx ? " pending" : "") + '"></div>';
+          }
+          if (g === 5) group += '<div class="tally-slash"></div>';
+          group += "</div>";
+          groups.push(group);
+          idx += g === 5 ? 5 : g;
+        }
+        strokes = groups.join("");
+      }
+      var chips = r.years.map(function (y) {
+        var pending = (r.k === pendingOwner && y === latest.year);
+        return '<span class="year-chip' + (pending ? " pending" : "") + '">' + y + (pending ? " · PENDING PROOF OF INK" : "") + "</span>";
+      }).join("");
+      return '<div class="tally-card reveal' + (r.count === 0 ? " clean" : "") + '">' +
+        '<div class="tally-count">' + r.count + "</div>" +
+        '<div class="tally-name">' + esc(ownerName(r.k)) + "</div>" +
+        '<div class="tally-strokes">' + strokes + "</div>" +
+        '<div class="tally-years">' + chips + "</div>" +
+      "</div>";
+    }).join("");
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
