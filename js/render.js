@@ -923,6 +923,34 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     TRANSACTION HALL OF FAME AND SHAME
+     ====================================================================== */
+  PAGES.transactions = function () {
+    var tx = SITE.transactions || [];
+    if (!tx.length) {
+      $("#case-files").innerHTML =
+        '<div class="empty-state reveal"><b>The Docket Is Open</b>' +
+        "No case files have been entered into the record yet. The trades that built dynasties, the waiver " +
+        "moves of legend, and the drops that still keep owners up at night all belong here. " +
+        "Submit nominations, with evidence, to the Office of the Annotator. Verdicts of FAME earn the gold " +
+        "seal; verdicts of SHAME are stamped in maroon and never expunged.</div>";
+      return;
+    }
+    $("#case-files").innerHTML = tx.map(function (t) {
+      return '<div class="case-file reveal" style="border-left:3px solid ' +
+        (t.verdict === "FAME" ? "var(--gold)" : "var(--maroon)") + '">' +
+        '<span class="stamp chip ' + (t.verdict === "FAME" ? "fame" : "shame") + '">' + esc(t.verdict) + "</span>" +
+        '<div class="eyebrow left" style="margin-bottom:6px">Case File · ' + esc(String(t.year)) + "</div>" +
+        "<h3>" + esc(t.headline) + "</h3>" +
+        '<div class="fr-line"><span>Parties <b>' +
+          (t.parties || []).map(function (p) { return esc(ownerName(p)); }).join(", ") + "</b></span></div>" +
+        '<p class="muted mt-1" style="font-size:.92rem">' + esc(t.details || "") + "</p>" +
+        (t.annotator_note ? '<div class="doc-note"><b>Annotator&#39;s Note.</b> ' + esc(t.annotator_note) + "</div>" : "") +
+      "</div>";
+    }).join("");
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
