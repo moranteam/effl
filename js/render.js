@@ -1009,7 +1009,16 @@ var PAGES = {};
     /* trip cards */
     $("#mc-gap").textContent = mc.gap_note;
     $("#mc-trips").innerHTML = (mc.trips || []).map(function (t) {
+      var cover = t.cover || [];
+      var gridPhotos = (t.gallery || []).filter(function (g) { return cover.indexOf(g) < 0; });
       return '<div class="banner-card reveal" style="border-top-color:var(--gold-dim)">' +
+        (cover.length
+          ? '<div class="trip-cover' + (cover.length > 1 ? " two" : "") + '">' +
+            cover.map(function (c) {
+              return '<button class="cv-item" type="button" data-year="' + t.year + '" data-src="' + esc(c) + '">' +
+                '<img loading="lazy" src="' + esc(c) + '" alt="' + t.year + ' McCockiner Cup cover photograph"></button>';
+            }).join("") + "</div>"
+          : "") +
         '<div class="wm">' + t.year + "</div>" +
         '<div class="year">' + t.year + "</div>" +
         '<div class="champ" style="font-size:1.5rem">' + esc(t.location) + "</div>" +
@@ -1027,12 +1036,19 @@ var PAGES = {};
           '<div class="kv"><span class="k">Attendees</span><span class="v">' + esc(mc.attendees_note) + "</span></div>" +
         "</div>" +
         (t.format_note ? '<div class="doc-note" style="margin-top:12px"><b>Format of Record.</b> ' + esc(t.format_note) + "</div>" : "") +
-        (t.gallery && t.gallery.length
-          ? EFFL.galleryHTML(t.gallery)
+        (gridPhotos.length
+          ? EFFL.galleryHTML(gridPhotos)
           : '<div class="empty-state mt-2" style="padding:14px"><b>Gallery Pending</b>Photos arrive with the archive drop.</div>') +
       "</div>";
     }).join("");
     EFFL.bindGalleries($("#mc-trips"));
+    EFFL.$all("#mc-trips .cv-item").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var trip = (mc.trips || []).filter(function (t) { return String(t.year) === b.dataset.year; })[0];
+        if (!trip || !trip.gallery) return;
+        EFFL.openLightbox(trip.gallery, Math.max(0, trip.gallery.indexOf(b.dataset.src)));
+      });
+    });
 
     /* dream venues + quotes */
     $("#mc-extra").innerHTML =
