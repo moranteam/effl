@@ -389,6 +389,108 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     HEAD TO HEAD MATRIX
+     ====================================================================== */
+  PAGES.h2h = function () {
+    $("#h2h-sub").textContent = "All time records including playoffs, " +
+      EFFL.years()[0] + " to " + EFFL.latestSeason().year + ". Read a row owner's record against each column.";
+
+    var showPerkins = !!EFFL.store.get("h2h_perkins", false);
+    var toggle = $("#perkins-toggle");
+
+    function keys() {
+      return showPerkins ? EFFL.OWNER_ORDER_ALL : EFFL.OWNER_ORDER;
+    }
+
+    function cellColor(w, l, t) {
+      var g = w + l + t;
+      if (!g) return "var(--panel-2)";
+      var p = (w + t * 0.5) / g;
+      if (p >= 0.5) {
+        var a = 0.08 + (p - 0.5) * 0.9;
+        return "rgba(255, 198, 39, " + a.toFixed(2) + ")";
+      }
+      var a2 = 0.12 + (0.5 - p) * 1.2;
+      return "rgba(140, 29, 64, " + Math.min(a2, 0.75).toFixed(2) + ")";
+    }
+
+    function renderMatrix() {
+      toggle.textContent = showPerkins ? "Hide The Perkins Registry" : "Show The Perkins Registry";
+      var ks = keys();
+      var html = '<table class="h2h-grid"><thead><tr><th></th>' +
+        ks.map(function (k) { return "<th>" + esc(ownerName(k)) + "</th>"; }).join("") + "</tr></thead><tbody>";
+      ks.forEach(function (a) {
+        html += '<tr><th class="row-head">' + esc(ownerName(a)) + "</th>";
+        ks.forEach(function (b) {
+          if (a === b) { html += '<td class="h2h-cell self" aria-hidden="true"></td>'; return; }
+          var r = (LEAGUE.h2h[a] && LEAGUE.h2h[a][b]) || { w: 0, l: 0, t: 0 };
+          html += '<td class="h2h-cell" tabindex="0" role="button" data-a="' + a + '" data-b="' + b + '"' +
+            ' style="background:' + cellColor(r.w, r.l, r.t) + '"' +
+            ' aria-label="' + esc(ownerName(a)) + " versus " + esc(ownerName(b)) + ", " + rec(r) + '">' +
+            rec(r) + "</td>";
+        });
+        html += "</tr>";
+      });
+      html += "</tbody></table>";
+      $("#h2h-matrix").innerHTML = html;
+
+      EFFL.$all(".h2h-cell[data-a]").forEach(function (td) {
+        function open() {
+          EFFL.$all(".h2h-cell.active").forEach(function (c) { c.classList.remove("active"); });
+          td.classList.add("active");
+          renderDetail(td.dataset.a, td.dataset.b);
+        }
+        td.addEventListener("click", open);
+        td.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+      });
+    }
+
+    function renderDetail(a, b) {
+      var r = (LEAGUE.h2h[a] && LEAGUE.h2h[a][b]) || { w: 0, l: 0, t: 0 };
+      var games = EFFL.rivalryGames(a, b).slice().sort(function (x, y) { return x.year - y.year || x.week - y.week; });
+      var last = games[games.length - 1];
+      var biggest = null, bigMargin = -1;
+      games.forEach(function (m) {
+        var margin = Math.abs(m.a_pts - m.b_pts);
+        if (margin > bigMargin) { bigMargin = margin; biggest = m; }
+      });
+      function line(m) {
+        if (!m) return '<span class="dim">No meetings on record.</span>';
+        var aWin = m.a_pts > m.b_pts;
+        var wKey = aWin ? m.a : m.b, lKey = aWin ? m.b : m.a;
+        return "<b>" + esc(ownerName(wKey)) + "</b> " + fmtPts(Math.max(m.a_pts, m.b_pts)) +
+          ", " + esc(ownerName(lKey)) + " " + fmtPts(Math.min(m.a_pts, m.b_pts)) +
+          ' <span class="dim">(' + m.year + ", wk " + m.week + (m.playoff ? ", playoffs" : "") + ")</span>";
+      }
+      $("#h2h-detail").innerHTML =
+        '<div class="panel panel-pad" style="border-top:3px solid var(--maroon)">' +
+          '<div class="eyebrow left" style="margin-bottom:10px">The Rivalry File</div>' +
+          '<div class="display" style="font-size:clamp(1.8rem,6vw,3rem)">' +
+            esc(ownerName(a).toUpperCase()) + ' <span class="gold">vs</span> ' + esc(ownerName(b).toUpperCase()) + "</div>" +
+          '<div class="grid cols-3 mt-2">' +
+            '<div class="stat-card"><div class="num">' + rec(r) + '</div><span class="label">' + esc(ownerName(a)) + "&#39;s Record" + '</span>' +
+              '<div class="sub">' + (r.w > r.l ? esc(ownerName(a)) + " leads the series" : r.w < r.l ? esc(ownerName(b)) + " leads the series" : "Dead even") + "</div></div>" +
+            '<div class="stat-card"><div class="num">' + games.length + '</div><span class="label">Meetings</span>' +
+              '<div class="sub">' + games.filter(function (g) { return g.playoff; }).length + " in the playoffs</div></div>" +
+            '<div class="stat-card"><div class="num">' + (biggest ? fmtPts(bigMargin) : "0") + '</div><span class="label">Biggest Margin</span>' +
+              '<div class="sub">The most lopsided result</div></div>' +
+          "</div>" +
+          '<div class="mt-2"><div class="kv"><span class="k">Last meeting</span><span class="v">' + line(last) + "</span></div>" +
+          '<div class="kv"><span class="k">Biggest win in the rivalry</span><span class="v">' + line(biggest) + "</span></div></div>" +
+        "</div>";
+      $("#h2h-detail").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    toggle.addEventListener("click", function () {
+      showPerkins = !showPerkins;
+      EFFL.store.set("h2h_perkins", showPerkins);
+      renderMatrix();
+    });
+
+    renderMatrix();
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
