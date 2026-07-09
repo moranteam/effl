@@ -491,6 +491,105 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     FRANCHISES
+     ====================================================================== */
+  PAGES.franchises = function () {
+    var yrs = EFFL.years();
+    $("#fr-sub").textContent = EFFL.OWNER_ORDER.length + " franchises of record, " +
+      yrs[0] + " to " + EFFL.latestSeason().year + ". Badges arrive with the Phase 2 art drop.";
+
+    function sparkline(k) {
+      var pts = [], W = 320, H = 74, padX = 12, padY = 10;
+      var x0 = yrs[0], x1 = yrs[yrs.length - 1];
+      function X(y) { return padX + (y - x0) / (x1 - x0) * (W - padX * 2); }
+      function Y(f) { return padY + (f - 1) / 7 * (H - padY * 2); }
+      var dots = "";
+      yrs.forEach(function (y) {
+        var s = EFFL.seasonByYear(y);
+        var t = s.teams.filter(function (x) { return x.owner === k; })[0];
+        if (!t) return;
+        pts.push(X(y).toFixed(1) + "," + Y(t.finish).toFixed(1));
+        var cls = s.champion === k ? "title" : (s.tally === k ? "tally" : "");
+        dots += '<circle class="dot ' + cls + '" cx="' + X(y).toFixed(1) + '" cy="' + Y(t.finish).toFixed(1) + '" r="' + (cls ? 4 : 2.5) + '">' +
+          "<title>" + y + ": finished " + EFFL.ordinal(t.finish) + "</title></circle>";
+      });
+      return '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" role="img" aria-label="Finish by year for ' + esc(ownerName(k)) + '">' +
+        '<line class="axis" x1="' + padX + '" y1="' + Y(1) + '" x2="' + (W - padX) + '" y2="' + Y(1) + '"></line>' +
+        '<line class="axis" x1="' + padX + '" y1="' + Y(8) + '" x2="' + (W - padX) + '" y2="' + Y(8) + '"></line>' +
+        '<polyline class="line" points="' + pts.join(" ") + '"></polyline>' + dots + "</svg>";
+    }
+
+    function oppSplits(k) {
+      var list = EFFL.OWNER_ORDER_ALL.filter(function (o) { return o !== k; }).map(function (o) {
+        var r = (LEAGUE.h2h[k] && LEAGUE.h2h[k][o]) || { w: 0, l: 0, t: 0 };
+        var g = r.w + r.l + r.t;
+        return { o: o, r: r, g: g, p: g ? (r.w + r.t * 0.5) / g : 0 };
+      }).filter(function (x) { return x.g >= 5; });
+      list.sort(function (a, b) { return a.p - b.p || b.g - a.g; });
+      return { nemesis: list[0], favorite: list[list.length - 1] };
+    }
+
+    function sigGames(k) {
+      var games = EFFL.gamesOf(k);
+      var best = games.slice().sort(function (a, b) { return b.pts - a.pts; })[0];
+      var worstBeat = games.filter(function (g) { return !g.won && !g.tied; })
+        .sort(function (a, b) { return b.pts - a.pts; })[0];
+      var blow = games.slice().sort(function (a, b) {
+        return Math.abs(b.pts - b.opp_pts) - Math.abs(a.pts - a.opp_pts);
+      })[0];
+      function line(g, verb) {
+        if (!g) return "";
+        return fmtPts(g.pts) + " " + verb + " " + esc(ownerName(g.opp)) + " (" + fmtPts(g.opp_pts) + "), " +
+          g.year + " wk " + g.week + (g.playoff ? ", playoffs" : "");
+      }
+      return (
+        '<div class="sig-game"><b>Best Week</b>' + line(best, "on") + "</div>" +
+        (worstBeat ? '<div class="sig-game"><b>Worst Beat</b>' + line(worstBeat, "was not enough against") + "</div>" : "") +
+        (blow ? '<div class="sig-game"><b>Biggest Margin Involved</b>' + (blow.won ? line(blow, "over") : line(blow, "run over by")) + "</div>" : "")
+      );
+    }
+
+    $("#fr-grid").innerHTML = EFFL.OWNER_ORDER.map(function (k) {
+      var o = LEAGUE.owners[k], c = o.career;
+      var sp = oppSplits(k);
+      var initials = o.display.replace(/^The /, "").slice(0, 2).toUpperCase();
+      var offices = (o.offices || []).join(", ");
+      return '<div class="fr-card reveal">' +
+        '<div class="fr-head">' +
+          '<div class="fr-badge" title="Franchise badge arrives in Phase 2">' + esc(initials) + "</div>" +
+          '<div><div class="fr-name">' + esc(o.display) + "</div>" +
+          '<div class="fr-team">' + esc(o.franchise_2025 || "") + (offices ? " · " + esc(offices) : "") + "</div></div>" +
+        "</div>" +
+        '<div class="fr-line">' +
+          "<span>Career <b>" + rec(c) + "</b></span>" +
+          "<span>Pct <b>" + pct(c.w, c.l, c.t) + "</b></span>" +
+          "<span>PF <b>" + fmtPts(c.pf) + "</b></span>" +
+          "<span>Titles <b>" + c.titles + "</b></span>" +
+          "<span>Tallies <b>" + c.tallies + "</b></span>" +
+          "<span>Playoffs <b>" + c.playoffs + "</b></span>" +
+        "</div>" +
+        sparkline(k) +
+        '<div class="fr-line" style="margin-top:2px">' +
+          (sp.nemesis ? "<span>Nemesis <b>" + esc(ownerName(sp.nemesis.o)) + " (" + rec(sp.nemesis.r) + ")</b></span>" : "") +
+          (sp.favorite ? "<span>Favorite Opponent <b>" + esc(ownerName(sp.favorite.o)) + " (" + rec(sp.favorite.r) + ")</b></span>" : "") +
+        "</div>" +
+        sigGames(k) +
+      "</div>";
+    }).join("");
+
+    /* Perkins registry footnote */
+    var p = LEAGUE.owners.perkins, pc = p.career;
+    $("#perkins-panel").innerHTML =
+      '<div class="panel panel-pad reveal" style="border-left:3px solid var(--gold-dim);max-width:820px;margin:0 auto">' +
+        '<div class="eyebrow left" style="margin-bottom:10px">Registry Footnote</div>' +
+        '<div class="fr-name">' + esc(p.display) + "</div>" +
+        '<p class="muted mt-1">' + esc((p.offices || []).join("; ")) + ". Career line: " + rec(pc) +
+        ", " + fmtPts(pc.pf) + " PF, finished " + EFFL.ordinal(pc.best) + " in " + EFFL.years()[0] +
+        ". One season, one playoff run, and a permanent line in the registry.</p>" +
+      "</div>";
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
