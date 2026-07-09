@@ -16,6 +16,70 @@ var PAGES = {};
   /* page renderers are registered below, one per page */
 
   /* ======================================================================
+     HALL OF CHAMPIONS
+     ====================================================================== */
+  PAGES.champions = function () {
+    var seasons = LEAGUE.seasons.slice().sort(function (a, b) { return b.year - a.year; });
+    $("#champ-sub").textContent = "One banner per season since " + EFFL.years()[0] +
+      ". Raised at The Estate, defended everywhere.";
+
+    $("#banner-grid").innerHTML = seasons.map(function (s) {
+      var t = s.teams.filter(function (x) { return x.owner === s.champion; })[0];
+      return '<div class="banner-card reveal">' +
+        '<div class="wm">' + s.year + "</div>" +
+        '<div class="year">' + s.year + "</div>" +
+        '<div class="champ">' + esc(ownerName(s.champion)) + "</div>" +
+        '<div class="team">' + esc(t.team) + "</div>" +
+        '<div class="meta">' +
+          "<span>Record <b>" + rec(t) + "</b></span>" +
+          "<span>PF <b>" + fmtPts(t.pf) + "</b></span>" +
+          "<span>Over <b>" + esc(ownerName(s.runner_up)) + "</b></span>" +
+        "</div></div>";
+    }).join("");
+
+    /* dynasty callout, computed */
+    var byTitles = EFFL.OWNER_ORDER.map(function (k) {
+      var yrs = LEAGUE.seasons.filter(function (s) { return s.champion === k; })
+        .map(function (s) { return s.year; }).sort();
+      return { k: k, titles: LEAGUE.owners[k].career.titles, years: yrs, tallies: LEAGUE.owners[k].career.tallies };
+    }).sort(function (a, b) { return b.titles - a.titles; });
+    var top = byTitles[0];
+    var b2b = [];
+    for (var i = 1; i < top.years.length; i++) {
+      if (top.years[i] === top.years[i - 1] + 1) b2b.push(top.years[i - 1] + " and " + top.years[i]);
+    }
+    $("#dynasty").innerHTML =
+      '<div class="panel panel-pad reveal" style="border-top:3px solid var(--gold);text-align:center">' +
+        '<div class="eyebrow center" style="margin-bottom:10px">The Dynasty</div>' +
+        '<div class="display" style="font-size:clamp(2.6rem,8vw,4.6rem)">' + esc(ownerName(top.k).toUpperCase()) + "</div>" +
+        '<p class="muted" style="max-width:560px;margin:10px auto 0">' +
+          top.titles + " championships (" + top.years.join(", ") + ")" +
+          (b2b.length ? ", including back to back in " + esc(b2b[b2b.length - 1]) : "") +
+          ". Career tallies: " + top.tallies + ". " +
+          (top.tallies === 0 ? "The ledger of shame has never touched the dynasty." : "") + "</p>" +
+        '<div class="grid cols-3 mt-3">' +
+          '<div class="stat-card"><div class="num"><em>' + top.titles + '</em></div><span class="label">Titles</span></div>' +
+          '<div class="stat-card"><div class="num">' + fmtPts(LEAGUE.owners[top.k].career.pf) + '</div><span class="label">Career PF</span></div>' +
+          '<div class="stat-card"><div class="num">' + top.tallies + '</div><span class="label">Tallies</span></div>' +
+        "</div></div>";
+
+    /* leaderboard */
+    $("#title-board").innerHTML =
+      '<table class="tbl"><thead><tr><th>Owner</th><th class="num-cell">Titles</th><th data-nosort>Years</th>' +
+      '<th class="num-cell">Runner Up</th><th class="num-cell">Playoff Berths</th></tr></thead><tbody>' +
+      byTitles.map(function (o) {
+        var ru = LEAGUE.seasons.filter(function (s) { return s.runner_up === o.k; }).length;
+        return "<tr" + (o.titles === top.titles && top.titles > 0 ? ' class="hl"' : "") + ">" +
+          '<td class="owner-cell">' + esc(ownerName(o.k)) + "</td>" +
+          '<td class="num-cell" data-val="' + o.titles + '">' + o.titles + "</td>" +
+          '<td class="dim">' + (o.years.join(", ") || "Still hunting") + "</td>" +
+          '<td class="num-cell" data-val="' + ru + '">' + ru + "</td>" +
+          '<td class="num-cell" data-val="' + LEAGUE.owners[o.k].career.playoffs + '">' + LEAGUE.owners[o.k].career.playoffs + "</td></tr>";
+      }).join("") + "</tbody></table>";
+    EFFL.makeSortable($("#title-board table"));
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hall of Champions · EFFL</title>
+<meta name="description" content="Every EFFL championship banner since 2015. The dynasty, the droughts, and the title count.">
+<meta property="og:site_name" content="The Estate Fantasy Football League">
+<meta property="og:title" content="Hall of Champions · EFFL">
+<meta property="og:description" content="Every banner since 2015. The dynasty is real: four titles and counting.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://moranteam.github.io/effl/champions.html">
+<meta property="og:image" content="https://moranteam.github.io/effl/assets/EFFL_Crest.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0B0E13">
+<link rel="icon" type="image/png" href="assets/EFFL_Crest.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="data/league-data.js" defer></script>
+<script src="data/site-config.js" defer></script>
+<script src="js/app.js" defer></script>
+<script src="js/render.js" defer></script>
+</head>
+<body data-page="champions">
+<div id="ticker" class="ticker" aria-hidden="true"></div>
+<header id="site-nav" class="site-nav"></header>
+<div id="commish-bar"></div>
+<main>
+
+  <section class="hero" data-hero="tunnel">
+    <div class="hero-inner">
+      <div class="hero-kicker">The Banners Hang Forever</div>
+      <h1 class="hero-title">Hall of Champions</h1>
+      <p class="hero-sub" id="champ-sub"></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid cols-3" id="banner-grid"></div>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="ornament" aria-hidden="true"><i></i><i></i><i></i></div></div>
+
+  <section class="section">
+    <div class="wrap" id="dynasty"></div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow left">The Count</div>
+        <h2 class="section-title">Title Leaderboard</h2>
+      </div>
+      <div class="tbl-scroll" id="title-board"></div>
+    </div>
+  </section>
+
+</main>
+<footer id="site-footer"></footer>
+<noscript><div style="padding:40px;text-align:center">The EFFL record renders from its data layer and requires JavaScript.</div></noscript>
+</body>
+</html>
