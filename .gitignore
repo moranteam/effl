@@ -1,11 +1,8 @@
 tools/
 tools_pkg/
 assets/raw-photos/
-node_modules/
-dist/
 *.zip
 .DS_Store
-.claude/worktrees/
 reference/
 # docs/ holds the alias editions of record; the sealed originals live in sources/.
 # Raw source documents (memos, itineraries, decks). Real names live here; never committed.
