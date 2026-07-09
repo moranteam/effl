@@ -869,6 +869,60 @@ var PAGES = {};
   };
 
   /* ======================================================================
+     AWARDS AND SUPERLATIVES
+     ====================================================================== */
+  PAGES.awards = function () {
+    var R = LEAGUE.records;
+    $("#awards-sub").textContent = "Half computed from " + fmtNum(LEAGUE.matchups.length) +
+      " games of cold arithmetic, half ratified by the warm chaos of the Assembly.";
+
+    function trophyCard(title, recipient, citation, tone) {
+      return '<div class="banner-card reveal" style="border-top-color:' + (tone === "shame" ? "var(--maroon)" : "var(--gold)") + '">' +
+        '<div class="eyebrow left" style="margin-bottom:8px">' + esc(title) + "</div>" +
+        '<div class="champ">' + esc(recipient) + "</div>" +
+        '<p class="muted mt-1" style="font-size:.88rem">' + citation + "</p></div>";
+    }
+
+    var hb = R.heartbreaks[0];
+    var rob = R.robberies[0];
+    var winStreak = EFFL.OWNER_ORDER_ALL.slice().sort(function (a, b) { return R.streaks[b].longest_win - R.streaks[a].longest_win; })[0];
+    var lossStreak = EFFL.OWNER_ORDER_ALL.slice().sort(function (a, b) { return R.streaks[b].longest_loss - R.streaks[a].longest_loss; })[0];
+    var dynasty = EFFL.OWNER_ORDER.slice().sort(function (a, b) { return LEAGUE.owners[b].career.titles - LEAGUE.owners[a].career.titles; })[0];
+    var futility = EFFL.OWNER_ORDER.slice().sort(function (a, b) { return LEAGUE.owners[b].career.tallies - LEAGUE.owners[a].career.tallies; });
+    var futilityLeaders = futility.filter(function (k) { return LEAGUE.owners[k].career.tallies === LEAGUE.owners[futility[0]].career.tallies; });
+
+    $("#computed-awards").innerHTML =
+      trophyCard("The Heartbreak Award", ownerName(hb.owner),
+        "Scored <b>" + fmtPts(hb.pts) + "</b>, the highest total ever posted in a loss, and still fell to " +
+        esc(ownerName(hb.opp)) + " (" + fmtPts(hb.opp_pts) + ") in " + hb.year + ", week " + hb.week +
+        (hb.playoff ? ", in the playoffs" : "") + ".", "shame") +
+      trophyCard("The Robbery", ownerName(rob.owner),
+        "Won with <b>" + fmtPts(rob.pts) + "</b>, the lowest winning score in league history, over " +
+        esc(ownerName(rob.opp)) + " (" + fmtPts(rob.opp_pts) + ") in " + rob.year + ", week " + rob.week +
+        (rob.playoff ? ", in the playoffs" : "") + ".", "gold") +
+      trophyCard("Longest Win Streak", ownerName(winStreak),
+        "<b>" + R.streaks[winStreak].longest_win + " straight wins</b>, the hottest sustained run the league has ever recorded.", "gold") +
+      trophyCard("Longest Losing Streak", ownerName(lossStreak),
+        "<b>" + R.streaks[lossStreak].longest_loss + " consecutive defeats</b>. The Assembly observed a moment of silence.", "shame") +
+      trophyCard("The Dynasty", ownerName(dynasty),
+        "<b>" + LEAGUE.owners[dynasty].career.titles + " titles</b> and " + LEAGUE.owners[dynasty].career.tallies +
+        " tallies. The standard against which all Estate careers are measured.", "gold") +
+      trophyCard("The Futility Crown", futilityLeaders.map(function (k) { return ownerName(k); }).join(" and "),
+        "<b>" + LEAGUE.owners[futilityLeaders[0]].career.tallies + " tallies each</b>, the most ink owed to the Statute by any owner.", "shame");
+
+    /* curated */
+    var curated = SITE.awards || [];
+    $("#curated-awards").innerHTML = curated.length
+      ? curated.map(function (a) {
+          return trophyCard(a.title, ownerName(a.recipient) !== a.recipient ? ownerName(a.recipient) : a.recipient,
+            esc(a.citation || "") + (a.year ? ' <span class="dim">(' + a.year + ")</span>" : ""), "gold");
+        }).join("")
+      : '<div class="empty-state" style="grid-column:1/-1"><b>The Cabinet Stands Empty</b>' +
+        "No curated honors have been ratified yet. Submit nominations for Best Draft Pick Ever, Worst Keeper, " +
+        "and Trade of the Decade to the Office of the Annotator.</div>";
+  };
+
+  /* ======================================================================
      HOME
      ====================================================================== */
   PAGES.home = function () {
