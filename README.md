@@ -12,7 +12,10 @@ Vanilla HTML, CSS, and JavaScript. No frameworks, no build step, no npm.
 Multi page architecture with shared css/, js/, and data/ layers.
 
 - `data/league-data.js` exposes `const LEAGUE`: the single source of truth for
-  every stat on the site (machine generated, do not hand edit)
+  every stat on the site (machine generated, do not hand edit). It is kept
+  whitespace compact for load performance; if the transform emits pretty
+  printed JSON, compact it before committing:
+  `node -e "const fs=require('fs');const L=eval(fs.readFileSync('data/league-data.js','utf8')+'; LEAGUE');fs.writeFileSync('data/league-data.js','const LEAGUE = '+JSON.stringify(L)+';\n')"`
 - `data/site-config.js` exposes `const SITE`: the curated content layer
   (news ticker, motions, prophecies, awards, transactions, McCockner)
 - `js/app.js` builds the shared chrome (ticker, nav, footer) and computed

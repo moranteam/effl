@@ -20,8 +20,6 @@ var PAGES = {};
      ====================================================================== */
   PAGES.champions = function () {
     var seasons = LEAGUE.seasons.slice().sort(function (a, b) { return b.year - a.year; });
-    $("#champ-sub").textContent = "One banner per season since " + EFFL.years()[0] +
-      ". Raised at The Estate, defended everywhere.";
 
     $("#banner-grid").innerHTML = seasons.map(function (s) {
       var t = s.teams.filter(function (x) { return x.owner === s.champion; })[0];
@@ -85,8 +83,6 @@ var PAGES = {};
   PAGES.seasons = function () {
     var yrs = EFFL.years();
     var latest = EFFL.latestSeason().year;
-    $("#seasons-sub").textContent = yrs[0] + " to " + latest +
-      ": final standings, full draft boards, weekly results, and the playoff bracket for every campaign.";
 
     var current = parseInt(location.hash.replace("#", ""), 10);
     if (yrs.indexOf(current) < 0) current = latest;
@@ -242,8 +238,6 @@ var PAGES = {};
      ====================================================================== */
   PAGES.records = function () {
     var R = LEAGUE.records;
-    $("#records-sub").textContent = "Top tens mined from " + fmtNum(LEAGUE.matchups.length) +
-      " games across " + LEAGUE.seasons.length + " seasons. Every line cites its year and week.";
 
     /* career table */
     $("#career-tbl").innerHTML =
@@ -341,9 +335,6 @@ var PAGES = {};
     var total = rows.reduce(function (n, r) { return n + r.count; }, 0);
     var clean = rows.filter(function (r) { return r.count === 0; });
 
-    $("#tally-sub").textContent = "The crown jewel of shame. " + total +
-      " tally marks owed across " + LEAGUE.seasons.length + " seasons, one per last place finish, " +
-      "permanent by constitutional mandate.";
 
     $("#tally-stats").innerHTML = [
       { n: total, l: "Tallies Owed", s: "All time, all owners" },
@@ -392,8 +383,6 @@ var PAGES = {};
      HEAD TO HEAD MATRIX
      ====================================================================== */
   PAGES.h2h = function () {
-    $("#h2h-sub").textContent = "All time records including playoffs, " +
-      EFFL.years()[0] + " to " + EFFL.latestSeason().year + ". Read a row owner's record against each column.";
 
     var showPerkins = !!EFFL.store.get("h2h_perkins", false);
     var toggle = $("#perkins-toggle");
@@ -495,8 +484,6 @@ var PAGES = {};
      ====================================================================== */
   PAGES.franchises = function () {
     var yrs = EFFL.years();
-    $("#fr-sub").textContent = EFFL.OWNER_ORDER.length + " franchises of record, " +
-      yrs[0] + " to " + EFFL.latestSeason().year + ". Badges arrive with the Phase 2 art drop.";
 
     function sparkline(k) {
       var pts = [], W = 320, H = 74, padX = 12, padY = 10;
@@ -594,11 +581,6 @@ var PAGES = {};
      ====================================================================== */
   PAGES.legislation = function () {
     var motions = SITE.motions || [];
-    var sessions = {};
-    motions.forEach(function (m) { sessions[m.id.split("-")[0]] = 1; });
-    $("#leg-sub").textContent = motions.length + " motions on the permanent record across " +
-      Object.keys(sessions).length + " session" + (Object.keys(sessions).length === 1 ? "" : "s") +
-      " of the Assembly. Vote tables as recorded by the Office of the Annotator.";
 
     var counts = { RATIFIED: 0, FAILED: 0, TABLED: 0, UNRESOLVED: 0 };
     motions.forEach(function (m) { counts[m.status] = (counts[m.status] || 0) + 1; });
@@ -656,8 +638,6 @@ var PAGES = {};
      THE CONSTITUTION (document text lives in the HTML; dynamic bits here)
      ====================================================================== */
   PAGES.constitution = function () {
-    $("#con-sub").textContent = "Twelve articles of league law, consolidated by the Office of the Annotator. " +
-      "Est. " + LEAGUE.meta.est + " at " + LEAGUE.meta.origin + ".";
 
     /* Article X, Section 4: current pending obligation, from the data layer */
     var latest = EFFL.latestSeason();
@@ -687,9 +667,6 @@ var PAGES = {};
      DRAFT CENTRAL
      ====================================================================== */
   PAGES.draft = function () {
-    var nextYear = EFFL.latestSeason().year + 1;
-    $("#draft-sub").textContent = "Snake format, 60 seconds a pick, " + LEAGUE.meta.platform +
-      " platform of record. The " + nextYear + " board awaits.";
     EFFL.countdown($("#draft-countdown"), SITE.draftDate2026, "Date to be proclaimed");
 
     /* Codex summary cards */
@@ -762,8 +739,6 @@ var PAGES = {};
      ====================================================================== */
   PAGES.power = function () {
     var R = LEAGUE.records;
-    $("#power-sub").textContent = "Career Elo across every game since " + EFFL.years()[0] +
-      ", all play standings, and the Luck Index. Settle the group chat with math.";
 
     /* Elo leaderboard cards */
     var ranked = EFFL.OWNER_ORDER_ALL.slice().sort(function (a, b) { return R.elo_final[b] - R.elo_final[a]; });
@@ -873,8 +848,6 @@ var PAGES = {};
      ====================================================================== */
   PAGES.awards = function () {
     var R = LEAGUE.records;
-    $("#awards-sub").textContent = "Half computed from " + fmtNum(LEAGUE.matchups.length) +
-      " games of cold arithmetic, half ratified by the warm chaos of the Assembly.";
 
     function trophyCard(title, recipient, citation, tone) {
       return '<div class="banner-card reveal" style="border-top-color:' + (tone === "shame" ? "var(--maroon)" : "var(--gold)") + '">' +
@@ -1124,10 +1097,6 @@ var PAGES = {};
     var meta = LEAGUE.meta;
     var latest = EFFL.latestSeason();
 
-    $("#home-est").textContent = "Est. " + meta.est + " · " + meta.origin;
-    $("#home-motto").textContent = meta.motto;
-    $("#home-sub").textContent = meta.name + ": the permanent record, the law, and the " +
-      "hype engine of " + LEAGUE.seasons.length + " seasons of head to head warfare on the " + meta.platform + " platform.";
 
     /* stat strip */
     var totalTallies = EFFL.OWNER_ORDER.reduce(function (n, k) { return n + LEAGUE.owners[k].career.tallies; }, 0);

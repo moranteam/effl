@@ -153,6 +153,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   white-space: nowrap;
   position: relative;
   z-index: 60;
+  min-height: 41px; /* reserved before JS fills it, so the page never shifts */
 }
 .ticker-track {
   display: inline-block;
@@ -192,6 +193,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--rule);
+  min-height: 65px; /* reserved before JS fills it, so the page never shifts */
 }
 .nav-inner {
   max-width: var(--wrap);
@@ -400,6 +402,7 @@ body.nav-open { overflow: hidden; }
 }
 .hero-sub { color: var(--muted); max-width: 620px; font-size: 1.02rem; }
 .hero-crest {
+  display: none;
   position: absolute;
   right: -6%;
   top: 50%;
@@ -409,6 +412,11 @@ body.nav-open { overflow: hidden; }
   pointer-events: none;
   filter: grayscale(35%);
 }
+@media (min-width: 700px) { .hero-crest { display: block; } }
+
+/* reserved footprint for the JS rendered home stat strip (anti shift) */
+#home-stats { min-height: 290px; }
+@media (min-width: 760px) { #home-stats { min-height: 146px; } }
 
 /* Per page gradient variants */
 .hero[data-hero="tunnel"] {
