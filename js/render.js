@@ -347,7 +347,7 @@ var PAGES = {};
 
     $("#tally-stats").innerHTML = [
       { n: total, l: "Tallies Owed", s: "All time, all owners" },
-      { n: rows[0].count, l: "Most By One Owner", s: rows.filter(function (r) { return r.count === rows[0].count; }).map(function (r) { return ownerName(r.k); }).join(" and ") },
+      { n: rows[0].count, l: "Most By One Owner", s: rows.filter(function (r) { return r.count === rows[0].count; }).map(function (r) { return ownerName(r.k); }).join(", ") },
       { n: clean.length, l: "Clean Owners", s: clean.map(function (r) { return ownerName(r.k); }).join(", ") || "Nobody" },
       { n: 1, l: "Pending Proof", s: ownerName(pendingOwner) + ", " + latest.year }
     ].map(function (c) {
@@ -883,13 +883,18 @@ var PAGES = {};
         '<p class="muted mt-1" style="font-size:.88rem">' + citation + "</p></div>";
     }
 
+    function leaders(keys, valueOf) {
+      var max = Math.max.apply(null, keys.map(valueOf));
+      return { max: max, who: keys.filter(function (k) { return valueOf(k) === max; }) };
+    }
+    function names(ks) { return ks.map(function (k) { return ownerName(k); }).join(", "); }
+
     var hb = R.heartbreaks[0];
     var rob = R.robberies[0];
-    var winStreak = EFFL.OWNER_ORDER_ALL.slice().sort(function (a, b) { return R.streaks[b].longest_win - R.streaks[a].longest_win; })[0];
-    var lossStreak = EFFL.OWNER_ORDER_ALL.slice().sort(function (a, b) { return R.streaks[b].longest_loss - R.streaks[a].longest_loss; })[0];
+    var winStreak = leaders(EFFL.OWNER_ORDER_ALL, function (k) { return R.streaks[k].longest_win; });
+    var lossStreak = leaders(EFFL.OWNER_ORDER_ALL, function (k) { return R.streaks[k].longest_loss; });
     var dynasty = EFFL.OWNER_ORDER.slice().sort(function (a, b) { return LEAGUE.owners[b].career.titles - LEAGUE.owners[a].career.titles; })[0];
-    var futility = EFFL.OWNER_ORDER.slice().sort(function (a, b) { return LEAGUE.owners[b].career.tallies - LEAGUE.owners[a].career.tallies; });
-    var futilityLeaders = futility.filter(function (k) { return LEAGUE.owners[k].career.tallies === LEAGUE.owners[futility[0]].career.tallies; });
+    var futility = leaders(EFFL.OWNER_ORDER, function (k) { return LEAGUE.owners[k].career.tallies; });
 
     $("#computed-awards").innerHTML =
       trophyCard("The Heartbreak Award", ownerName(hb.owner),
@@ -900,15 +905,18 @@ var PAGES = {};
         "Won with <b>" + fmtPts(rob.pts) + "</b>, the lowest winning score in league history, over " +
         esc(ownerName(rob.opp)) + " (" + fmtPts(rob.opp_pts) + ") in " + rob.year + ", week " + rob.week +
         (rob.playoff ? ", in the playoffs" : "") + ".", "gold") +
-      trophyCard("Longest Win Streak", ownerName(winStreak),
-        "<b>" + R.streaks[winStreak].longest_win + " straight wins</b>, the hottest sustained run the league has ever recorded.", "gold") +
-      trophyCard("Longest Losing Streak", ownerName(lossStreak),
-        "<b>" + R.streaks[lossStreak].longest_loss + " consecutive defeats</b>. The Assembly observed a moment of silence.", "shame") +
+      trophyCard("Longest Win Streak", names(winStreak.who),
+        "<b>" + winStreak.max + " straight wins</b>, the hottest sustained run the league has ever recorded." +
+        (winStreak.who.indexOf("perkins") >= 0 ? " Set in a single season and retired with the seat." : ""), "gold") +
+      trophyCard("Longest Losing Streak", names(lossStreak.who),
+        "<b>" + lossStreak.max + " consecutive defeats" + (lossStreak.who.length > 1 ? " apiece" : "") +
+        "</b>. The Assembly observed a moment of silence.", "shame") +
       trophyCard("The Dynasty", ownerName(dynasty),
         "<b>" + LEAGUE.owners[dynasty].career.titles + " titles</b> and " + LEAGUE.owners[dynasty].career.tallies +
         " tallies. The standard against which all Estate careers are measured.", "gold") +
-      trophyCard("The Futility Crown", futilityLeaders.map(function (k) { return ownerName(k); }).join(" and "),
-        "<b>" + LEAGUE.owners[futilityLeaders[0]].career.tallies + " tallies each</b>, the most ink owed to the Statute by any owner.", "shame");
+      trophyCard("The Futility Crown", names(futility.who),
+        "<b>" + futility.max + " tallies" + (futility.who.length > 1 ? " each" : "") +
+        "</b>, the most ink owed to the Statute by any owner.", "shame");
 
     /* curated */
     var curated = SITE.awards || [];

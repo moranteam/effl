@@ -491,8 +491,11 @@ body.nav-open { overflow: hidden; }
 .stat-card .sub { font-size: .74rem; color: var(--muted); margin-top: 4px; }
 
 .grid { display: grid; gap: 14px; }
-.grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid > * { min-width: 0; }
 .grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 700px) {
+  .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+}
 @media (min-width: 760px) {
   .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
   .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
