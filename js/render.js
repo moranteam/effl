@@ -541,7 +541,10 @@ var PAGES = {};
       var sp = oppSplits(k);
       var initials = o.display.replace(/^The /, "").slice(0, 2).toUpperCase();
       var offices = (o.offices || []).join(", ");
+      var photo = (SITE.franchisePhotos || {})[k];
       return '<div class="fr-card reveal">' +
+        (photo ? '<div class="fr-photo"><img loading="lazy" src="' + esc(photo.src) +
+          '" alt="' + esc(photo.alt || o.display) + '" style="object-position:' + esc(photo.pos || "50% 25%") + '"></div>' : "") +
         '<div class="fr-head">' +
           '<div class="fr-badge" title="Franchise badge arrives in Phase 2">' + esc(initials) + "</div>" +
           '<div><div class="fr-name">' + esc(o.display) + "</div>" +

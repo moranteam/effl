@@ -778,6 +778,28 @@ th.sortable.desc::after { content: " \2193"; opacity: 1; color: var(--gold); }
   border-top: 3px solid var(--maroon);
   padding: 24px 22px;
 }
+.fr-photo {
+  position: relative;
+  margin: -24px -22px 18px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-bottom: 1px solid var(--rule);
+  background: var(--panel-2);
+}
+.fr-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .8s ease;
+}
+.fr-card:hover .fr-photo img { transform: scale(1.04); }
+.fr-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(20, 25, 36, .55) 100%);
+  pointer-events: none;
+}
 .fr-head { display: flex; gap: 16px; align-items: center; }
 .fr-badge {
   width: 62px; height: 62px;

@@ -48,6 +48,16 @@ const SITE = {
       votes: { lop: "Yes", gov: "Yes", chen: "No", herm: "Yes", professor: "Yes", rogue: "Yes", charlie: "Yes", gary: "Yes" } }
   ],
 
+  // Franchise portraits, cleared by the Annotator July 2026. Optimized per Rule 6.
+  // pos is the CSS object-position keeping faces in frame at any crop.
+  franchisePhotos: {
+    gary: { src: "assets/franchises/gary.jpg", alt: "Gary, mid celebration", pos: "50% 18%" },
+    gov: { src: "assets/franchises/gov.jpg", alt: "Gov, airborne above a folding table", pos: "50% 35%" },
+    professor: { src: "assets/franchises/professor.jpg", alt: "The Professor engineering the broadcast", pos: "50% 25%" },
+    lop: { src: "assets/franchises/lop.jpg", alt: "Lop, cooperating fully with local authorities", pos: "50% 30%" }
+    // chen, rogue, herm, charlie: portraits pending from the Annotator
+  },
+
   prophecies: { 2026: [] }, // {owner, text, verdict: null|"RIGHT"|"WRONG"}
 
   awards: [], // curated: {title, recipient, year, citation}
